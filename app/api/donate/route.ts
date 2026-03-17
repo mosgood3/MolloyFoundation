@@ -11,7 +11,7 @@ function getStripe() {
 }
 
 const donationSchema = z.object({
-  amount: z.number().int().min(5).max(10000),
+  amount: z.number().int().min(1).max(10000),
   donor_name: z.string().min(1).max(200).optional(),
 });
 

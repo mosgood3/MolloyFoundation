@@ -26,8 +26,8 @@ export default function DonateWidget() {
 
   async function handleDonate() {
     const value = typeof amount === "number" ? amount : 0;
-    if (value < 5) {
-      setError("Minimum donation is $5");
+    if (value < 1) {
+      setError("Minimum donation is $1");
       return;
     }
     if (value > 10000) {
@@ -155,7 +155,7 @@ export default function DonateWidget() {
 
             <button
               onClick={handleDonate}
-              disabled={loading || selected < 5}
+              disabled={loading || selected < 1}
               className="w-full py-5 bg-amber-500 text-white font-extrabold text-xl rounded-xl hover:bg-amber-600 active:scale-[0.98] transition-all shadow-md shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
