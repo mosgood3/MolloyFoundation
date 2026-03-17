@@ -31,6 +31,20 @@ export async function POST(req: NextRequest) {
 
     const { player_name, player_shirt, division, email, phone } = parsed.data;
 
+    // Check if email already registered
+    const { data: existing } = await supabaseAdmin
+      .from("singles_2026")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (existing) {
+      return Response.json(
+        { error: "This email is already registered as a free agent." },
+        { status: 409 }
+      );
+    }
+
     // Insert into singles table
     const { error } = await supabaseAdmin.from("singles_2026").insert({
       player_name,
