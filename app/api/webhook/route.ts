@@ -39,54 +39,8 @@ export async function POST(request: Request) {
     const meta = session.metadata ?? {};
     const amount = (session.amount_total ?? 0) / 100;
 
-    if (meta.type === 'registration' && meta.reg_mode === 'singles') {
-      // ── Singles registration ──
-      try {
-        const { error: singlesErr } = await supabaseAdmin.from('singles_2026').insert({
-          player_name: meta.player_name,
-          player_shirt: meta.player_size,
-          division: meta.division,
-          email: meta.email,
-          phone: meta.phone,
-        });
-        if (singlesErr) throw singlesErr;
-        console.log('Singles registered:', meta.player_name);
-
-        const { error: donErr } = await supabaseAdmin.from('donations_2026').insert({
-          amount,
-          donor_name: meta.player_name,
-          donor_email: meta.email,
-          source: 'singles_registration',
-        });
-        if (donErr) {
-          console.error('Donation insert failed for singles:', meta.player_name, donErr.message);
-        }
-
-        // Send waiver email
-        try {
-          const { data: waiver } = await supabaseAdmin
-            .from('waivers_2026')
-            .insert({
-              player_name: meta.player_name,
-              player_email: meta.email,
-              registration_type: 'singles',
-            })
-            .select('token, player_name')
-            .single();
-
-          if (waiver && meta.email) {
-            await sendSinglesWaiverEmail(meta.email, meta.player_name!, waiver.token);
-            console.log('Waiver email sent to:', meta.email);
-          }
-        } catch (waiverErr) {
-          console.error('Waiver email failed (singles):', waiverErr);
-        }
-      } catch (error: unknown) {
-        const errMsg = error instanceof Error ? error.message : String(error);
-        console.error('Singles registration error:', errMsg);
-        return NextResponse.json({ error: 'Singles registration failed' }, { status: 500 });
-      }
-    } else if (meta.type === 'registration') {
+    // Singles no longer go through Stripe — handled by /api/singles directly.
+    if (meta.type === 'registration') {
       // ── Team registration ──
       try {
         let players: Array<{ name: string; size: string; email: string }>;
@@ -221,6 +175,11 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Donation processing failed' }, { status: 500 });
       }
     }
+  }
+
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log('Checkout session expired:', session.id, session.metadata);
   }
 
   return NextResponse.json({ received: true }, { status: 200 });
