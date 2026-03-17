@@ -94,7 +94,7 @@ export default async function Proceeds() {
           {lastYearTotal > 0 && (
             <p className="text-center text-gray-500 text-sm mb-14">
               We raised <span className="text-slate-800 font-semibold">${lastYearTotal.toLocaleString()}</span> across
-              all previous tournaments. Help us beat that this year.
+              last year. Help us beat that this year.
             </p>
           )}
 
