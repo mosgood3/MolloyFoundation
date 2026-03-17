@@ -93,68 +93,78 @@ export default function AdminDashboard() {
   }
 
   const [exporting, setExporting] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportTabs, setExportTabs] = useState<Tab[]>([]);
+
+  const columnMap: Record<Tab, string[]> = {
+    teams: ["team_name", "division", "team_email", "team_phone", "player1", "player1shirt", "player1email", "player2", "player2shirt", "player2email", "player3", "player3shirt", "player3email", "player4", "player4shirt", "player4email", "created_at"],
+    singles: ["player_name", "player_shirt", "division", "email", "phone", "created_at"],
+    donations: ["amount", "donor_name", "donor_email", "source", "created_at"],
+    waivers: ["player_name", "player_email", "team_name", "registration_type", "signed", "signed_name", "signed_at", "created_at"],
+    volunteers: ["name", "email", "phone", "interests", "created_at"],
+  };
+
+  function toggleExportTab(t: Tab) {
+    setExportTabs((prev) =>
+      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
+    );
+  }
+
+  async function fetchAllForTab(t: Tab): Promise<Record<string, unknown>[]> {
+    const allRows: Record<string, unknown>[] = [];
+    let p = 1;
+    let hasMore = true;
+    while (hasMore) {
+      const params = new URLSearchParams({ tab: t, page: String(p) });
+      const res = await fetch(`/api/admin?${params}`);
+      if (!res.ok) break;
+      const json = await res.json();
+      allRows.push(...(json.data ?? []));
+      hasMore = allRows.length < (json.total ?? 0);
+      p++;
+    }
+    return allRows;
+  }
+
+  function toCsv(rows: Record<string, unknown>[], cols: string[]): string {
+    const sanitize = (v: unknown): string => {
+      const cell = v == null ? "" : String(v);
+      const escaped = cell.replace(/"/g, '""');
+      if (/^[=+\-@\t\r]/.test(escaped)) return `"'${escaped}"`;
+      return `"${escaped}"`;
+    };
+    const header = cols.join(",") + "\n";
+    const body = rows.map((row) => cols.map((c) => sanitize(row[c])).join(",")).join("\n");
+    return header + body;
+  }
+
+  function downloadCsv(content: string, filename: string) {
+    const blob = new Blob([content], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   async function handleExport() {
+    if (exportTabs.length === 0) return;
     setExporting(true);
     try {
-      // Fetch all pages for the current tab
-      const allRows: Record<string, unknown>[] = [];
-      let p = 1;
-      let hasMore = true;
-      while (hasMore) {
-        const params = new URLSearchParams({
-          tab,
-          page: String(p),
-          ...(search && { search }),
-        });
-        const res = await fetch(`/api/admin?${params}`);
-        if (!res.ok) break;
-        const json = await res.json();
-        allRows.push(...(json.data ?? []));
-        hasMore = allRows.length < (json.total ?? 0);
-        p++;
+      for (const t of exportTabs) {
+        const rows = await fetchAllForTab(t);
+        if (rows.length === 0) continue;
+        const csv = toCsv(rows, columnMap[t]);
+        downloadCsv(csv, `${t}-export.csv`);
       }
-
-      if (allRows.length === 0) {
-        setExporting(false);
-        return;
-      }
-
-      // Determine columns based on tab
-      const columnMap: Record<string, string[]> = {
-        teams: ["team_name", "division", "team_email", "team_phone", "player1", "player1shirt", "player1email", "player2", "player2shirt", "player2email", "player3", "player3shirt", "player3email", "player4", "player4shirt", "player4email", "created_at"],
-        singles: ["player_name", "player_shirt", "division", "email", "phone", "created_at"],
-        donations: ["amount", "donor_name", "donor_email", "source", "created_at"],
-        waivers: ["player_name", "player_email", "team_name", "registration_type", "signed", "signed_name", "signed_at", "created_at"],
-        volunteers: ["name", "email", "phone", "interests", "created_at"],
-      };
-
-      const cols = columnMap[tab] ?? Object.keys(allRows[0]);
-      const header = cols.join(",") + "\n";
-
-      const sanitize = (v: unknown): string => {
-        const cell = v == null ? "" : String(v);
-        const escaped = cell.replace(/"/g, '""');
-        if (/^[=+\-@\t\r]/.test(escaped)) return `"'${escaped}"`;
-        return `"${escaped}"`;
-      };
-
-      const body = allRows
-        .map((row) => cols.map((c) => sanitize(row[c])).join(","))
-        .join("\n");
-
-      const blob = new Blob([header + body], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${tab}-export.csv`;
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
     } catch {
       // silently fail
     } finally {
       setExporting(false);
+      setShowExportModal(false);
+      setExportTabs([]);
     }
   }
 
@@ -251,16 +261,67 @@ export default function AdminDashboard() {
           )}
         </form>
         <button
-          onClick={handleExport}
-          disabled={exporting || data.length === 0}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white font-semibold text-sm rounded-xl hover:bg-slate-700 transition disabled:opacity-40 disabled:cursor-not-allowed h-fit"
+          onClick={() => setShowExportModal(true)}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white font-semibold text-sm rounded-xl hover:bg-slate-700 transition h-fit"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
           </svg>
-          {exporting ? "Exporting..." : "Export CSV"}
+          Export CSV
         </button>
         </div>
+
+        {/* Export Modal */}
+        {showExportModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 w-full max-w-sm mx-4">
+              <h3 className="text-lg font-extrabold text-slate-800 mb-1">Export Reports</h3>
+              <p className="text-sm text-slate-500 mb-5">Select which reports to download as CSV.</p>
+
+              <div className="space-y-2 mb-6">
+                {tabs.map((t) => {
+                  const checked = exportTabs.includes(t.key);
+                  return (
+                    <label
+                      key={t.key}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition ${
+                        checked
+                          ? "bg-amber-50 border-2 border-amber-500"
+                          : "bg-slate-50 border-2 border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleExportTab(t.key)}
+                        className="w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500"
+                      />
+                      <span className={`text-sm font-semibold ${checked ? "text-amber-700" : "text-slate-700"}`}>
+                        {t.label}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowExportModal(false); setExportTabs([]); }}
+                  className="flex-1 py-2.5 border border-slate-200 text-slate-600 font-semibold text-sm rounded-xl hover:bg-slate-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleExport}
+                  disabled={exporting || exportTabs.length === 0}
+                  className="flex-1 py-2.5 bg-amber-500 text-white font-bold text-sm rounded-xl hover:bg-amber-600 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {exporting ? "Exporting..." : `Export ${exportTabs.length > 0 ? `(${exportTabs.length})` : ""}`}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Table */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
