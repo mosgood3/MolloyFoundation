@@ -197,3 +197,27 @@ export async function sendVolunteerConfirmationEmail(
     html,
   });
 }
+
+export async function sendDonationThankYouEmail(
+  toEmail: string,
+  amount: number,
+  donorName: string | null
+) {
+  const greeting = donorName ? `Thank you, ${donorName}!` : "Thank you!";
+
+  const html = emailWrapper(`
+    ${heading(greeting)}
+    ${paragraph(`Your generous donation of <strong>$${amount.toLocaleString()}</strong> to Molloy Madness makes a real difference.`)}
+    ${paragraph("100% of every dollar goes directly to scholarships and charities in Matthew Molloy's name. No admin fees, no overhead &mdash; just impact.")}
+    ${note("Your donation may be tax-deductible. Please consult your tax advisor. The Matthew C. Molloy Foundation is a registered 501(c)(3) nonprofit organization.")}
+    ${paragraph("We're grateful for your support and generosity.")}
+    ${signoff()}
+  `);
+
+  await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: toEmail,
+    subject: "Thank You for Your Donation — Molloy Madness",
+    html,
+  });
+}

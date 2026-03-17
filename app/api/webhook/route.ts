@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabaseadmin';
-import { sendTeamWaiverEmail, sendSinglesWaiverEmail } from '@/lib/email';
+import { sendTeamWaiverEmail, sendSinglesWaiverEmail, sendDonationThankYouEmail } from '@/lib/email';
 
 // NOTE: Idempotency for webhook events should be handled at the database level
 // using unique constraints (e.g., a unique stripe_session_id column on donations_2026).
@@ -205,6 +205,16 @@ export async function POST(request: Request) {
         });
         if (donErr) throw donErr;
         console.log('Donation recorded:', amount, meta.donor_name || 'anonymous');
+
+        // Send thank-you email
+        if (customerEmail) {
+          try {
+            await sendDonationThankYouEmail(customerEmail, amount, meta.donor_name || null);
+            console.log('Donation thank-you email sent to:', customerEmail);
+          } catch (emailErr) {
+            console.error('Donation thank-you email failed:', emailErr);
+          }
+        }
       } catch (error: unknown) {
         const errMsg = error instanceof Error ? error.message : String(error);
         console.error('Donation flow error:', errMsg);
