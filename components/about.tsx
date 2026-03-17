@@ -1,22 +1,61 @@
 import Image from "next/image";
 
-export default function About() {
-  const gallery = [
-    { src: "/molloy1.png", alt: "Matt with friends" },
-    { src: "/molloy2.png", alt: "On the field" },
-    { src: "/molloy3.png", alt: "Game day" },
-    { src: "/molloy4.png", alt: "Celebrating together" },
-    { src: "/molloy5.png", alt: "Matt's smile" },
-    { src: "/molloy6.png", alt: "Family memories" },
-  ];
+const memorialPhotos = [
+  { src: "/molloy1.png", alt: "Matt with friends" },
+  { src: "/molloy2.png", alt: "On the field" },
+  { src: "/molloy3.png", alt: "Game day" },
+  { src: "/molloy4.png", alt: "Celebrating together" },
+  { src: "/molloy5.png", alt: "Matt's smile" },
+  { src: "/molloy6.png", alt: "Family memories" },
+];
 
+const tournamentPhotos = [
+  { src: "/IMG_7242.JPG", alt: "Tournament action" },
+  { src: "/IMG_7245.JPG", alt: "On the court" },
+  { src: "/IMG_7257.JPG", alt: "Game time" },
+  { src: "/IMG_7281.JPG", alt: "Competition" },
+  { src: "/IMG_7303.JPG", alt: "Tournament day" },
+  { src: "/IMG_7306.JPG", alt: "Community" },
+];
+
+function PhotoGrid({
+  photos,
+}: {
+  photos: { src: string; alt: string }[];
+}) {
+  return (
+    <div className="columns-2 md:columns-3 gap-4 space-y-4">
+      {photos.map((img, idx) => (
+        <div
+          key={idx}
+          className="group relative break-inside-avoid rounded-2xl overflow-hidden border border-slate-200 hover:border-amber-300 hover:shadow-xl transition-all duration-500"
+        >
+          <Image
+            src={img.src}
+            alt={img.alt}
+            width={600}
+            height={800}
+            className="w-full h-auto object-contain transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
+            <p className="text-white font-medium text-sm tracking-wide">
+              {img.alt}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function About() {
   return (
     <section id="about" className="relative bg-slate-50 overflow-hidden">
       {/* Ambient blobs */}
       <div className="absolute top-40 -right-20 w-[500px] h-[500px] bg-amber-200/20 rounded-full blur-[120px]" />
       <div className="absolute bottom-60 -left-20 w-[400px] h-[400px] bg-amber-100/25 rounded-full blur-[100px]" />
 
-      {/* ── Gallery ── */}
+      {/* ── In Memory Gallery ── */}
       <div className="relative py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
@@ -24,36 +63,14 @@ export default function About() {
               In Memory
             </p>
             <h2 className="text-3xl md:text-5xl font-extrabold text-slate-800 mb-4">
-              Memorial Gallery
+              Remembering Matt
             </h2>
             <p className="text-gray-500 text-lg max-w-lg mx-auto">
               Celebrating the moments that defined Matt.
             </p>
           </div>
 
-          {/* Masonry grid */}
-          <div className="columns-2 md:columns-3 gap-4 space-y-4">
-            {gallery.map((img, idx) => (
-              <div
-                key={idx}
-                className="group relative break-inside-avoid rounded-2xl overflow-hidden border border-slate-200 hover:border-amber-300 hover:shadow-xl transition-all duration-500"
-              >
-                <Image
-                  src={img.src}
-                  alt={img.alt}
-                  width={600}
-                  height={800}
-                  className="w-full h-auto object-contain transition-transform duration-700 group-hover:scale-105"
-                />
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
-                  <p className="text-white font-medium text-sm tracking-wide">
-                    {img.alt}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <PhotoGrid photos={memorialPhotos} />
         </div>
       </div>
 
@@ -108,7 +125,10 @@ export default function About() {
                     {section.title}
                   </h3>
                   {section.content.map((p, i) => (
-                    <p key={i} className="text-gray-600 leading-relaxed mb-3 last:mb-0">
+                    <p
+                      key={i}
+                      className="text-gray-600 leading-relaxed mb-3 last:mb-0"
+                    >
                       {p}
                     </p>
                   ))}
@@ -130,18 +150,43 @@ export default function About() {
               {[
                 { label: "Date", value: "May 16, 2026" },
                 { label: "Time", value: "11:00 AM" },
-                { label: "Location", value: "875 Day Hill Rd, Windsor, CT 06095" },
+                {
+                  label: "Location",
+                  value: "875 Day Hill Rd, Windsor, CT 06095",
+                },
                 { label: "Teams", value: "Open to all" },
               ].map((item) => (
                 <div key={item.label} className="px-6 py-5 text-center">
                   <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">
                     {item.label}
                   </p>
-                  <p className="text-slate-800 font-medium text-sm">{item.value}</p>
+                  <p className="text-slate-800 font-medium text-sm">
+                    {item.value}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Tournament Highlights ── */}
+      <div className="relative border-t border-slate-100 py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-amber-600 font-semibold uppercase tracking-widest text-sm mb-3">
+              Past Tournaments
+            </p>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-800 mb-4">
+              Tournament Highlights
+            </h2>
+            <p className="text-gray-500 text-lg max-w-lg mx-auto">
+              Scenes from the court — where community and competition come
+              together.
+            </p>
+          </div>
+
+          <PhotoGrid photos={tournamentPhotos} />
         </div>
       </div>
     </section>
