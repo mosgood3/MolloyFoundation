@@ -1,0 +1,217 @@
+import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { supabaseAdmin } from '@/lib/supabaseadmin';
+import { sendTeamWaiverEmail, sendSinglesWaiverEmail } from '@/lib/email';
+
+// NOTE: Idempotency for webhook events should be handled at the database level
+// using unique constraints (e.g., a unique stripe_session_id column on donations_2026).
+// Stripe may retry webhook deliveries, so DB-level deduplication is the most
+// reliable approach—especially across multiple server instances or restarts.
+
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-04-30.basil',
+  });
+}
+
+export async function POST(request: Request) {
+  const signature = request.headers.get('stripe-signature');
+  if (!signature) {
+    console.error('Missing Stripe-Signature header');
+    return NextResponse.json({ error: 'Missing Stripe signature header' }, { status: 400 });
+  }
+
+  const rawBody = await request.text();
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+  let event: Stripe.Event;
+  try {
+    const stripe = getStripe();
+    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error('Signature verification failed:', errMsg);
+    return NextResponse.json({ error: "Invalid webhook" }, { status: 400 });
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const meta = session.metadata ?? {};
+    const amount = (session.amount_total ?? 0) / 100;
+
+    if (meta.type === 'registration' && meta.reg_mode === 'singles') {
+      // ── Singles registration ──
+      try {
+        const { error: singlesErr } = await supabaseAdmin.from('singles_2026').insert({
+          player_name: meta.player_name,
+          player_shirt: meta.player_size,
+          division: meta.division,
+          email: meta.email,
+          phone: meta.phone,
+        });
+        if (singlesErr) throw singlesErr;
+        console.log('Singles registered:', meta.player_name);
+
+        const { error: donErr } = await supabaseAdmin.from('donations_2026').insert({
+          amount,
+          donor_name: meta.player_name,
+          donor_email: meta.email,
+          source: 'singles_registration',
+        });
+        if (donErr) {
+          console.error('Donation insert failed for singles:', meta.player_name, donErr.message);
+        }
+
+        // Send waiver email
+        try {
+          const { data: waiver } = await supabaseAdmin
+            .from('waivers_2026')
+            .insert({
+              player_name: meta.player_name,
+              player_email: meta.email,
+              registration_type: 'singles',
+            })
+            .select('token, player_name')
+            .single();
+
+          if (waiver && meta.email) {
+            await sendSinglesWaiverEmail(meta.email, meta.player_name!, waiver.token);
+            console.log('Waiver email sent to:', meta.email);
+          }
+        } catch (waiverErr) {
+          console.error('Waiver email failed (singles):', waiverErr);
+        }
+      } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        console.error('Singles registration error:', errMsg);
+        return NextResponse.json({ error: 'Singles registration failed' }, { status: 500 });
+      }
+    } else if (meta.type === 'registration') {
+      // ── Team registration ──
+      try {
+        let players: Array<{ name: string; size: string; email: string }>;
+        try {
+          players = JSON.parse(meta.players as string);
+        } catch {
+          console.error('Failed to parse players metadata:', meta.players);
+          return NextResponse.json({ error: 'Invalid players metadata' }, { status: 400 });
+        }
+
+        if (!Array.isArray(players) || players.length !== 3) {
+          return NextResponse.json({ error: 'Expected exactly 3 players' }, { status: 400 });
+        }
+
+        for (let i = 0; i < 3; i++) {
+          if (!players[i]?.name || !players[i]?.size) {
+            return NextResponse.json({ error: `Player ${i + 1} is incomplete` }, { status: 400 });
+          }
+        }
+
+        let player4: { name: string; size: string; email: string } | null = null;
+        if (meta.player4) {
+          try { player4 = JSON.parse(meta.player4); } catch { /* skip */ }
+        }
+
+        const teamRow: Record<string, string | null> = {
+          team_name: meta.team_name!,
+          division: meta.division!,
+          team_email: meta.team_email!,
+          team_phone: meta.team_phone!,
+          player1: players[0].name,
+          player2: players[1].name,
+          player3: players[2].name,
+          player1shirt: players[0].size,
+          player2shirt: players[1].size,
+          player3shirt: players[2].size,
+          player1email: players[0].email,
+          player2email: players[1].email,
+          player3email: players[2].email,
+          player4: player4?.name ?? null,
+          player4shirt: player4?.size ?? null,
+          player4email: player4?.email ?? null,
+        };
+
+        const { error: teamErr } = await supabaseAdmin.from('teams_2026').insert(teamRow);
+        if (teamErr) throw teamErr;
+        console.log('Team registered:', teamRow.team_name);
+
+        const { error: regErr } = await supabaseAdmin.from('donations_2026').insert({
+          amount,
+          donor_name: meta.team_name,
+          donor_email: meta.team_email,
+          source: 'registration',
+        });
+        if (regErr) {
+          console.error('Donation insert failed for team:', teamRow.team_name, regErr.message);
+        }
+
+        // Send waiver emails to each player individually
+        try {
+          const allPlayers = players.map((p) => ({
+            player_name: p.name,
+            player_email: p.email || meta.team_email,
+            team_name: meta.team_name,
+            registration_type: 'team' as const,
+          }));
+          if (player4) {
+            allPlayers.push({
+              player_name: player4.name,
+              player_email: player4.email || meta.team_email,
+              team_name: meta.team_name,
+              registration_type: 'team',
+            });
+          }
+
+          const { data: waivers } = await supabaseAdmin
+            .from('waivers_2026')
+            .insert(allPlayers)
+            .select('token, player_name, player_email');
+
+          if (waivers) {
+            // Send each player their own waiver email
+            for (const w of waivers) {
+              if (w.player_email) {
+                try {
+                  await sendSinglesWaiverEmail(w.player_email, w.player_name, w.token);
+                  console.log('Waiver email sent to:', w.player_email);
+                } catch (e) {
+                  console.error('Waiver email failed for:', w.player_name, e);
+                }
+              }
+            }
+            // Also send team captain a summary with all links
+            if (meta.team_email) {
+              await sendTeamWaiverEmail(meta.team_email, meta.team_name!, waivers);
+              console.log('Team summary email sent to:', meta.team_email);
+            }
+          }
+        } catch (waiverErr) {
+          console.error('Waiver email failed (team):', waiverErr);
+        }
+      } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        console.error('Team registration error:', errMsg);
+        return NextResponse.json({ error: 'Registration processing failed' }, { status: 500 });
+      }
+    } else {
+      // ── Direct donation ──
+      try {
+        const customerEmail = session.customer_details?.email || null;
+        const { error: donErr } = await supabaseAdmin.from('donations_2026').insert({
+          amount,
+          donor_name: meta.donor_name || null,
+          donor_email: customerEmail,
+          source: 'donation',
+        });
+        if (donErr) throw donErr;
+        console.log('Donation recorded:', amount, meta.donor_name || 'anonymous');
+      } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        console.error('Donation flow error:', errMsg);
+        return NextResponse.json({ error: 'Donation processing failed' }, { status: 500 });
+      }
+    }
+  }
+
+  return NextResponse.json({ received: true }, { status: 200 });
+}
