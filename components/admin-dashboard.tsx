@@ -407,191 +407,274 @@ const th =
   "px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider";
 const td = "px-4 py-3 text-sm text-slate-700 whitespace-nowrap";
 
+// Shared mobile card field
+function CardField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex justify-between items-start gap-2">
+      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider shrink-0">{label}</span>
+      <span className="text-sm text-slate-700 text-right">{children}</span>
+    </div>
+  );
+}
+
 function TeamsTable({ rows }: { rows: Record<string, unknown>[] }) {
   return (
-    <table className="w-full">
-      <thead className="bg-slate-50 border-b border-slate-100">
-        <tr>
-          <th className={th}>Team</th>
-          <th className={th}>Division</th>
-          <th className={th}>Players</th>
-          <th className={th}>Email</th>
-          <th className={th}>Phone</th>
-          <th className={th}>Registered</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-slate-50">
-        {rows.map((r, i) => (
-          <tr key={i} className="hover:bg-slate-50/50 transition">
-            <td className={`${td} font-semibold`}>{String(r.team_name ?? "")}</td>
-            <td className={td}>
-              <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-                {String(r.division ?? "")}
-              </span>
-            </td>
-            <td className={`${td} max-w-xs`}>
-              <div className="space-y-0.5">
-                <p>{String(r.player1 ?? "")} <span className="text-slate-400">({String(r.player1shirt ?? "")})</span></p>
-                <p>{String(r.player2 ?? "")} <span className="text-slate-400">({String(r.player2shirt ?? "")})</span></p>
-                <p>{String(r.player3 ?? "")} <span className="text-slate-400">({String(r.player3shirt ?? "")})</span></p>
-                {r.player4 ? (
-                  <p>{String(r.player4)} <span className="text-slate-400">({String(r.player4shirt ?? "")})</span></p>
-                ) : null}
-              </div>
-            </td>
-            <td className={td}>{String(r.team_email ?? "")}</td>
-            <td className={td}>{String(r.team_phone ?? "")}</td>
-            <td className={td}>{formatDate(r.created_at as string)}</td>
+    <>
+      {/* Desktop */}
+      <table className="w-full hidden md:table">
+        <thead className="bg-slate-50 border-b border-slate-100">
+          <tr>
+            <th className={th}>Team</th>
+            <th className={th}>Division</th>
+            <th className={th}>Players</th>
+            <th className={th}>Email</th>
+            <th className={th}>Phone</th>
+            <th className={th}>Registered</th>
           </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50">
+          {rows.map((r, i) => (
+            <tr key={i} className="hover:bg-slate-50/50 transition">
+              <td className={`${td} font-semibold`}>{String(r.team_name ?? "")}</td>
+              <td className={td}>
+                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                  {String(r.division ?? "")}
+                </span>
+              </td>
+              <td className={`${td} max-w-xs`}>
+                <div className="space-y-0.5">
+                  <p>{String(r.player1 ?? "")} <span className="text-slate-400">({String(r.player1shirt ?? "")})</span></p>
+                  <p>{String(r.player2 ?? "")} <span className="text-slate-400">({String(r.player2shirt ?? "")})</span></p>
+                  <p>{String(r.player3 ?? "")} <span className="text-slate-400">({String(r.player3shirt ?? "")})</span></p>
+                  {r.player4 ? (
+                    <p>{String(r.player4)} <span className="text-slate-400">({String(r.player4shirt ?? "")})</span></p>
+                  ) : null}
+                </div>
+              </td>
+              <td className={td}>{String(r.team_email ?? "")}</td>
+              <td className={td}>{String(r.team_phone ?? "")}</td>
+              <td className={td}>{formatDate(r.created_at as string)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {/* Mobile */}
+      <div className="md:hidden divide-y divide-slate-100">
+        {rows.map((r, i) => (
+          <div key={i} className="p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-slate-800">{String(r.team_name ?? "")}</p>
+              <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">{String(r.division ?? "")}</span>
+            </div>
+            <CardField label="Players">
+              <div className="space-y-0.5 text-right">
+                <p>{String(r.player1 ?? "")}</p>
+                <p>{String(r.player2 ?? "")}</p>
+                <p>{String(r.player3 ?? "")}</p>
+                {r.player4 ? <p>{String(r.player4)}</p> : null}
+              </div>
+            </CardField>
+            <CardField label="Email">{String(r.team_email ?? "")}</CardField>
+            <CardField label="Phone">{String(r.team_phone ?? "")}</CardField>
+            <CardField label="Date">{formatDate(r.created_at as string)}</CardField>
+          </div>
         ))}
-      </tbody>
-    </table>
+      </div>
+    </>
   );
 }
 
 function SinglesTable({ rows }: { rows: Record<string, unknown>[] }) {
   return (
-    <table className="w-full">
-      <thead className="bg-slate-50 border-b border-slate-100">
-        <tr>
-          <th className={th}>Player</th>
-          <th className={th}>Shirt</th>
-          <th className={th}>Division</th>
-          <th className={th}>Email</th>
-          <th className={th}>Phone</th>
-          <th className={th}>Registered</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-slate-50">
-        {rows.map((r, i) => (
-          <tr key={i} className="hover:bg-slate-50/50 transition">
-            <td className={`${td} font-semibold`}>{String(r.player_name ?? "")}</td>
-            <td className={td}>{String(r.player_shirt ?? "")}</td>
-            <td className={td}>
-              <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-                {String(r.division ?? "")}
-              </span>
-            </td>
-            <td className={td}>{String(r.email ?? "")}</td>
-            <td className={td}>{String(r.phone ?? "")}</td>
-            <td className={td}>{formatDate(r.created_at as string)}</td>
+    <>
+      <table className="w-full hidden md:table">
+        <thead className="bg-slate-50 border-b border-slate-100">
+          <tr>
+            <th className={th}>Player</th>
+            <th className={th}>Shirt</th>
+            <th className={th}>Division</th>
+            <th className={th}>Email</th>
+            <th className={th}>Phone</th>
+            <th className={th}>Registered</th>
           </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50">
+          {rows.map((r, i) => (
+            <tr key={i} className="hover:bg-slate-50/50 transition">
+              <td className={`${td} font-semibold`}>{String(r.player_name ?? "")}</td>
+              <td className={td}>{String(r.player_shirt ?? "")}</td>
+              <td className={td}>
+                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">{String(r.division ?? "")}</span>
+              </td>
+              <td className={td}>{String(r.email ?? "")}</td>
+              <td className={td}>{String(r.phone ?? "")}</td>
+              <td className={td}>{formatDate(r.created_at as string)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="md:hidden divide-y divide-slate-100">
+        {rows.map((r, i) => (
+          <div key={i} className="p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-slate-800">{String(r.player_name ?? "")}</p>
+              <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">{String(r.division ?? "")}</span>
+            </div>
+            <CardField label="Shirt">{String(r.player_shirt ?? "")}</CardField>
+            <CardField label="Email">{String(r.email ?? "")}</CardField>
+            <CardField label="Phone">{String(r.phone ?? "")}</CardField>
+            <CardField label="Date">{formatDate(r.created_at as string)}</CardField>
+          </div>
         ))}
-      </tbody>
-    </table>
+      </div>
+    </>
   );
 }
 
 function DonationsTable({ rows }: { rows: Record<string, unknown>[] }) {
   return (
-    <table className="w-full">
-      <thead className="bg-slate-50 border-b border-slate-100">
-        <tr>
-          <th className={th}>Amount</th>
-          <th className={th}>Donor</th>
-          <th className={th}>Email</th>
-          <th className={th}>Source</th>
-          <th className={th}>Date</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-slate-50">
-        {rows.map((r, i) => (
-          <tr key={i} className="hover:bg-slate-50/50 transition">
-            <td className={`${td} font-semibold text-green-600`}>
-              ${Number(r.amount ?? 0).toLocaleString()}
-            </td>
-            <td className={td}>{String(r.donor_name ?? "Anonymous")}</td>
-            <td className={td}>{String(r.donor_email ?? "—")}</td>
-            <td className={td}>
-              <SourceBadge source={String(r.source ?? "")} />
-            </td>
-            <td className={td}>{formatDate(r.created_at as string)}</td>
+    <>
+      <table className="w-full hidden md:table">
+        <thead className="bg-slate-50 border-b border-slate-100">
+          <tr>
+            <th className={th}>Amount</th>
+            <th className={th}>Donor</th>
+            <th className={th}>Email</th>
+            <th className={th}>Source</th>
+            <th className={th}>Date</th>
           </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50">
+          {rows.map((r, i) => (
+            <tr key={i} className="hover:bg-slate-50/50 transition">
+              <td className={`${td} font-semibold text-green-600`}>${Number(r.amount ?? 0).toLocaleString()}</td>
+              <td className={td}>{String(r.donor_name ?? "Anonymous")}</td>
+              <td className={td}>{String(r.donor_email ?? "—")}</td>
+              <td className={td}><SourceBadge source={String(r.source ?? "")} /></td>
+              <td className={td}>{formatDate(r.created_at as string)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="md:hidden divide-y divide-slate-100">
+        {rows.map((r, i) => (
+          <div key={i} className="p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-green-600 text-lg">${Number(r.amount ?? 0).toLocaleString()}</p>
+              <SourceBadge source={String(r.source ?? "")} />
+            </div>
+            <CardField label="Donor">{String(r.donor_name ?? "Anonymous")}</CardField>
+            <CardField label="Email">{String(r.donor_email ?? "—")}</CardField>
+            <CardField label="Date">{formatDate(r.created_at as string)}</CardField>
+          </div>
         ))}
-      </tbody>
-    </table>
+      </div>
+    </>
   );
 }
 
 function WaiversTable({ rows }: { rows: Record<string, unknown>[] }) {
   return (
-    <table className="w-full">
-      <thead className="bg-slate-50 border-b border-slate-100">
-        <tr>
-          <th className={th}>Player</th>
-          <th className={th}>Email</th>
-          <th className={th}>Team</th>
-          <th className={th}>Type</th>
-          <th className={th}>Status</th>
-          <th className={th}>Signed At</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-slate-50">
-        {rows.map((r, i) => (
-          <tr key={i} className="hover:bg-slate-50/50 transition">
-            <td className={`${td} font-semibold`}>{String(r.player_name ?? "")}</td>
-            <td className={td}>{String(r.player_email ?? "")}</td>
-            <td className={td}>{String(r.team_name ?? "—")}</td>
-            <td className={td}>{String(r.registration_type ?? "")}</td>
-            <td className={td}>
-              {r.signed ? (
-                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                  Signed
-                </span>
-              ) : (
-                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-600">
-                  Pending
-                </span>
-              )}
-            </td>
-            <td className={td}>
-              {r.signed_at ? formatDate(r.signed_at as string) : "—"}
-            </td>
+    <>
+      <table className="w-full hidden md:table">
+        <thead className="bg-slate-50 border-b border-slate-100">
+          <tr>
+            <th className={th}>Player</th>
+            <th className={th}>Email</th>
+            <th className={th}>Team</th>
+            <th className={th}>Type</th>
+            <th className={th}>Status</th>
+            <th className={th}>Signed At</th>
           </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50">
+          {rows.map((r, i) => (
+            <tr key={i} className="hover:bg-slate-50/50 transition">
+              <td className={`${td} font-semibold`}>{String(r.player_name ?? "")}</td>
+              <td className={td}>{String(r.player_email ?? "")}</td>
+              <td className={td}>{String(r.team_name ?? "—")}</td>
+              <td className={td}>{String(r.registration_type ?? "")}</td>
+              <td className={td}>
+                {r.signed ? (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Signed</span>
+                ) : (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-600">Pending</span>
+                )}
+              </td>
+              <td className={td}>{r.signed_at ? formatDate(r.signed_at as string) : "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="md:hidden divide-y divide-slate-100">
+        {rows.map((r, i) => (
+          <div key={i} className="p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-slate-800">{String(r.player_name ?? "")}</p>
+              {r.signed ? (
+                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Signed</span>
+              ) : (
+                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-600">Pending</span>
+              )}
+            </div>
+            <CardField label="Email">{String(r.player_email ?? "")}</CardField>
+            <CardField label="Team">{String(r.team_name ?? "—")}</CardField>
+            <CardField label="Type">{String(r.registration_type ?? "")}</CardField>
+            {r.signed_at ? <CardField label="Signed">{formatDate(r.signed_at as string)}</CardField> : null}
+          </div>
         ))}
-      </tbody>
-    </table>
+      </div>
+    </>
   );
 }
 
 function VolunteersTable({ rows }: { rows: Record<string, unknown>[] }) {
   return (
-    <table className="w-full">
-      <thead className="bg-slate-50 border-b border-slate-100">
-        <tr>
-          <th className={th}>Name</th>
-          <th className={th}>Email</th>
-          <th className={th}>Phone</th>
-          <th className={th}>Interests</th>
-          <th className={th}>Signed Up</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-slate-50">
-        {rows.map((r, i) => (
-          <tr key={i} className="hover:bg-slate-50/50 transition">
-            <td className={`${td} font-semibold`}>{String(r.name ?? "")}</td>
-            <td className={td}>{String(r.email ?? "")}</td>
-            <td className={td}>{String(r.phone ?? "")}</td>
-            <td className={td}>
-              <div className="flex flex-wrap gap-1">
-                {String(r.interests ?? "")
-                  .split(", ")
-                  .filter(Boolean)
-                  .map((interest, j) => (
-                    <span
-                      key={j}
-                      className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700"
-                    >
-                      {interest}
-                    </span>
-                  ))}
-              </div>
-            </td>
-            <td className={td}>{formatDate(r.created_at as string)}</td>
+    <>
+      <table className="w-full hidden md:table">
+        <thead className="bg-slate-50 border-b border-slate-100">
+          <tr>
+            <th className={th}>Name</th>
+            <th className={th}>Email</th>
+            <th className={th}>Phone</th>
+            <th className={th}>Interests</th>
+            <th className={th}>Signed Up</th>
           </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50">
+          {rows.map((r, i) => (
+            <tr key={i} className="hover:bg-slate-50/50 transition">
+              <td className={`${td} font-semibold`}>{String(r.name ?? "")}</td>
+              <td className={td}>{String(r.email ?? "")}</td>
+              <td className={td}>{String(r.phone ?? "")}</td>
+              <td className={td}>
+                <div className="flex flex-wrap gap-1">
+                  {String(r.interests ?? "").split(", ").filter(Boolean).map((interest, j) => (
+                    <span key={j} className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">{interest}</span>
+                  ))}
+                </div>
+              </td>
+              <td className={td}>{formatDate(r.created_at as string)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="md:hidden divide-y divide-slate-100">
+        {rows.map((r, i) => (
+          <div key={i} className="p-4 space-y-2">
+            <p className="font-bold text-slate-800">{String(r.name ?? "")}</p>
+            <CardField label="Email">{String(r.email ?? "")}</CardField>
+            <CardField label="Phone">{String(r.phone ?? "")}</CardField>
+            <div className="flex flex-wrap gap-1 pt-1">
+              {String(r.interests ?? "").split(", ").filter(Boolean).map((interest, j) => (
+                <span key={j} className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">{interest}</span>
+              ))}
+            </div>
+            <CardField label="Date">{formatDate(r.created_at as string)}</CardField>
+          </div>
         ))}
-      </tbody>
-    </table>
+      </div>
+    </>
   );
 }
 
