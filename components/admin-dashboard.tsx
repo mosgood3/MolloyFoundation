@@ -92,6 +92,72 @@ export default function AdminDashboard() {
     router.refresh();
   }
 
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      // Fetch all pages for the current tab
+      const allRows: Record<string, unknown>[] = [];
+      let p = 1;
+      let hasMore = true;
+      while (hasMore) {
+        const params = new URLSearchParams({
+          tab,
+          page: String(p),
+          ...(search && { search }),
+        });
+        const res = await fetch(`/api/admin?${params}`);
+        if (!res.ok) break;
+        const json = await res.json();
+        allRows.push(...(json.data ?? []));
+        hasMore = allRows.length < (json.total ?? 0);
+        p++;
+      }
+
+      if (allRows.length === 0) {
+        setExporting(false);
+        return;
+      }
+
+      // Determine columns based on tab
+      const columnMap: Record<string, string[]> = {
+        teams: ["team_name", "division", "team_email", "team_phone", "player1", "player1shirt", "player1email", "player2", "player2shirt", "player2email", "player3", "player3shirt", "player3email", "player4", "player4shirt", "player4email", "created_at"],
+        singles: ["player_name", "player_shirt", "division", "email", "phone", "created_at"],
+        donations: ["amount", "donor_name", "donor_email", "source", "created_at"],
+        waivers: ["player_name", "player_email", "team_name", "registration_type", "signed", "signed_name", "signed_at", "created_at"],
+        volunteers: ["name", "email", "phone", "interests", "created_at"],
+      };
+
+      const cols = columnMap[tab] ?? Object.keys(allRows[0]);
+      const header = cols.join(",") + "\n";
+
+      const sanitize = (v: unknown): string => {
+        const cell = v == null ? "" : String(v);
+        const escaped = cell.replace(/"/g, '""');
+        if (/^[=+\-@\t\r]/.test(escaped)) return `"'${escaped}"`;
+        return `"${escaped}"`;
+      };
+
+      const body = allRows
+        .map((row) => cols.map((c) => sanitize(row[c])).join(","))
+        .join("\n");
+
+      const blob = new Blob([header + body], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${tab}-export.csv`;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // silently fail
+    } finally {
+      setExporting(false);
+    }
+  }
+
   const totalPages = Math.ceil(total / pageSize);
 
   const tabs: { key: Tab; label: string }[] = [
@@ -154,8 +220,9 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Search */}
-        <form onSubmit={handleSearch} className="flex gap-2 mb-6 max-w-md">
+        {/* Search + Export */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <form onSubmit={handleSearch} className="flex gap-2 flex-1 max-w-md">
           <input
             type="text"
             value={searchInput}
@@ -183,6 +250,17 @@ export default function AdminDashboard() {
             </button>
           )}
         </form>
+        <button
+          onClick={handleExport}
+          disabled={exporting || data.length === 0}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white font-semibold text-sm rounded-xl hover:bg-slate-700 transition disabled:opacity-40 disabled:cursor-not-allowed h-fit"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          {exporting ? "Exporting..." : "Export CSV"}
+        </button>
+        </div>
 
         {/* Table */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
