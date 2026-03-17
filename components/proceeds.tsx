@@ -104,7 +104,7 @@ export default async function Proceeds() {
           {topDonors.length > 0 && (
             <div className="mt-16 max-w-2xl mx-auto">
               <p className="text-center text-slate-400 text-xs font-semibold uppercase tracking-[0.2em] mb-6">
-                2026 Donor Wall
+                Our Biggest Supporters
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 {topDonors.map((d, i) => (
