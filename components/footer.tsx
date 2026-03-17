@@ -56,9 +56,16 @@ export default function Footer() {
               {CONTACT_EMAIL}
             </a>
             <p className="text-slate-500 text-sm mt-3">
-              Berlin, CT
+              875 Day Hill Rd, Windsor, CT 06095
             </p>
           </div>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="border-t border-slate-800 py-6">
+          <p className="text-slate-600 text-xs leading-relaxed max-w-4xl">
+            By registering for or participating in the Molloy Madness 3v3 Basketball Tournament, you acknowledge that you have read and agree to the tournament waiver and release of liability. All participants must be at least 14 years of age. Participants under 18 must have parental or legal guardian consent. The Matthew C. Molloy Foundation and Day Hill Dome Partners, LLC assume no liability for injuries sustained during the event. All participants are required to sign a waiver prior to game day.
+          </p>
         </div>
 
         <div className="border-t border-slate-800 py-8 flex flex-col sm:flex-row justify-between items-center gap-4">

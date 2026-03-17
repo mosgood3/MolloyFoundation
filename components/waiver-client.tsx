@@ -13,21 +13,25 @@ type WaiverData = {
   signed_at: string | null;
 };
 
-const WAIVER_TEXT = `FACILITY USAGE — ADULT WAIVER
+const WAIVER_TEXT = `MOLLOY MADNESS 3v3 BASKETBALL TOURNAMENT — WAIVER AND RELEASE OF LIABILITY
 
-DAY HILL DOME PARTNERS, LLC (dba DAY HILL DOME)
+MATTHEW C. MOLLOY FOUNDATION & DAY HILL DOME PARTNERS, LLC
 
-I am aware of the nature of, and possibility for injury with any sports activity, and I hereby assume responsibility for myself to participate. I will not hold Day Hill Dome Partners, LLC, and/or its employees or agents responsible in case of any accident or injury as a result of this participation.
+By signing this waiver, I confirm that I am at least 14 years of age. If I am under 18, I confirm that my parent or legal guardian has reviewed this waiver and has given consent for my participation in the Molloy Madness 3v3 Basketball Tournament ("Event").
 
-I hereby further agree to indemnify and hold harmless Day Hill Dome Partners, LLC, from and against any and all loss, damage, claim, demand, liability, or expense by reason of any damage or injury to property or person which may be claimed to have arisen as a result of or in connection with participating in activities at the Day Hill Dome.
+I, the undersigned participant, voluntarily agree to participate in the Event held at Day Hill Dome, 875 Day Hill Rd, Windsor, CT 06095, organized by the Matthew C. Molloy Foundation.
 
-In addition, I grant Day Hill Dome Partners, LLC, and its staff permission to utilize any medical emergency services it deems necessary to treat injuries that I may incur while participating. I understand that Day Hill Dome Partners, LLC, does not provide insurance for program participants.
+ASSUMPTION OF RISK: I am aware of the nature of, and possibility for injury with any sports activity, and I hereby assume responsibility for myself to participate. I understand that participation in this Event involves inherent risks, including but not limited to physical injury, and I voluntarily assume all such risks.
 
-I agree, understand, and acknowledge, on my own behalf that an inherent risk of exposure to the disease COVID-19 (as defined by the World Health Organization and any strains, variants, or mutations thereof) and SARS-CoV-2 (the virus that can cause COVID-19) (collectively, "COVID-19"), and any other communicable or infectious disease, exists in any public place where people are present.
+RELEASE AND WAIVER: I will not hold the Matthew C. Molloy Foundation, Day Hill Dome Partners, LLC (dba Day Hill Dome), and/or their officers, employees, volunteers, agents, or sponsors responsible in case of any accident or injury as a result of this participation. I hereby further agree to indemnify and hold harmless both parties from and against any and all loss, damage, claim, demand, liability, or expense by reason of any damage or injury to property or person which may be claimed to have arisen as a result of or in connection with participating in activities at the Event.
 
-Day Hill Dome Partners, LLC may be taking pictures of activities to use in promotional publications. I hereby release and permit the Day Hill Dome Partners, LLC to utilize these photos for Day Hill Dome promotional purposes.
+MEDICAL AUTHORIZATION: I grant Day Hill Dome Partners, LLC, the Matthew C. Molloy Foundation, and their staff permission to utilize any medical emergency services deemed necessary to treat injuries that I may incur while participating. I understand that neither organization provides insurance for program participants.
 
-875 Day Hill Rd, Windsor, CT 06095`;
+HEALTH ACKNOWLEDGEMENT: I agree, understand, and acknowledge, on my own behalf, that an inherent risk of exposure to COVID-19 and any other communicable or infectious disease exists in any public place where people are present.
+
+MEDIA RELEASE: I grant permission to the Matthew C. Molloy Foundation and Day Hill Dome Partners, LLC to use photographs, video, or other media of my participation for promotional purposes.
+
+I have read this waiver, fully understand its terms, and sign it freely and voluntarily.`;
 
 export default function WaiverClient() {
   const searchParams = useSearchParams();
@@ -200,7 +204,7 @@ export default function WaiverClient() {
             className="mt-1 w-5 h-5 rounded border-slate-300 text-amber-500 focus:ring-amber-500"
           />
           <span className="text-sm text-gray-600">
-            I have read the waiver above and agree to its terms.
+            I have read the waiver above and agree to its terms. I confirm that I am at least 14 years of age, or that my parent/legal guardian has given consent for my participation.
           </span>
         </label>
 
