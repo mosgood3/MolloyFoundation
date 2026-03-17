@@ -14,8 +14,8 @@ export default function HeroSection() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 w-full">
         <div className="flex flex-col lg:flex-row items-center gap-16">
-          <div className="lg:w-3/5 space-y-8">
-            <div className="flex items-center gap-3">
+          <div className="lg:w-3/5 space-y-8 text-center lg:text-left">
+            <div className="flex items-center justify-center lg:justify-start gap-3">
               <span className="h-px w-12 bg-amber-500/50" />
               <span className="text-amber-400 font-semibold tracking-[0.2em] uppercase text-sm">
                 May 16, 2026 &middot; Windsor, CT
@@ -29,12 +29,12 @@ export default function HeroSection() {
               </span>
             </h1>
 
-            <p className="text-slate-300 text-lg md:text-xl leading-relaxed max-w-xl">
+            <p className="text-slate-300 text-lg md:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0">
               3v3 charity basketball tournament in honor of Matthew Molloy.
               Every dollar goes to scholarships and charities that carry on his legacy.
             </p>
 
-            <div className="flex flex-wrap gap-4 pt-4">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
               <Link
                 href="/register"
                 className="group inline-flex items-center gap-2.5 px-8 py-4 bg-amber-500 text-white font-extrabold text-lg rounded-xl hover:bg-amber-600 active:scale-[0.98] transition-all shadow-lg shadow-amber-500/25"
