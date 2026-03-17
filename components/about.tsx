@@ -9,13 +9,14 @@ const memorialPhotos = [
   { src: "/molloy6.png", alt: "Family memories" },
 ];
 
+// Ordered to balance tall/wide images across columns
 const tournamentPhotos = [
-  { src: "/IMG_7242.JPG", alt: "Tournament action" },
-  { src: "/IMG_7245.JPG", alt: "On the court" },
-  { src: "/IMG_7257.JPG", alt: "Game time" },
-  { src: "/IMG_7281.JPG", alt: "Competition" },
-  { src: "/IMG_7303.JPG", alt: "Tournament day" },
-  { src: "/IMG_7306.JPG", alt: "Community" },
+  { src: "/IMG_7242.JPG", alt: "Tournament action" },   // tall
+  { src: "/IMG_7257.JPG", alt: "Game time" },            // wide
+  { src: "/IMG_7303.JPG", alt: "Tournament day" },       // tall
+  { src: "/IMG_7245.JPG", alt: "On the court" },         // square-ish
+  { src: "/IMG_7281.JPG", alt: "Competition" },           // wide
+  { src: "/IMG_7306.JPG", alt: "Community" },             // square-ish
 ];
 
 function PhotoGrid({
