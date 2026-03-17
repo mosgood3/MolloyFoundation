@@ -41,7 +41,8 @@ export type TopDonor = {
 export async function getTopDonors(limit = 10): Promise<TopDonor[]> {
   const { data, error } = await supabaseAdmin
     .from('donations_2026')
-    .select('donor_name, amount');
+    .select('donor_name, amount')
+    .eq('source', 'donation');
 
   if (error) {
     console.error('Failed to fetch top donors:', error.message);
