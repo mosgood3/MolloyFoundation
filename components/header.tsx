@@ -70,6 +70,7 @@ export default function Header() {
                 : "text-white/80 hover:text-white hover:bg-white/10"
             }`;
             return l.href.includes("#") ? (
+              // eslint-disable-next-line @next/next/no-html-link-for-pages
               <a key={l.href} href={l.href} className={cls}>
                 {l.label}
               </a>
@@ -92,6 +93,7 @@ export default function Header() {
           >
             Register
           </Link>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a
             href="/#proceeds"
             className="ml-1 px-4 py-2 rounded-lg text-sm font-bold bg-amber-500 text-white hover:bg-amber-600 transition-colors shadow-sm"
@@ -137,6 +139,7 @@ export default function Header() {
           {links.map((l) => {
             const cls = "block px-3 py-2.5 rounded-lg text-slate-700 font-semibold text-sm hover:bg-slate-100 transition-colors";
             return l.href.includes("#") ? (
+              // eslint-disable-next-line @next/next/no-html-link-for-pages
               <a key={l.href} href={l.href} onClick={() => setOpen(false)} className={cls}>
                 {l.label}
               </a>
@@ -155,6 +158,7 @@ export default function Header() {
             >
               Register
             </Link>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/#proceeds"
               onClick={() => setOpen(false)}
