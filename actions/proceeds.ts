@@ -41,19 +41,18 @@ export type TopDonor = {
 export async function getTopDonors(limit = 10): Promise<TopDonor[]> {
   const { data, error } = await supabaseAdmin
     .from('donations_2026')
-    .select('donor_name, amount')
-    .not('donor_name', 'is', null);
+    .select('donor_name, amount');
 
   if (error) {
     console.error('Failed to fetch top donors:', error.message);
     return [];
   }
 
-  // Aggregate by donor name
+  // Aggregate by donor name (null names grouped as "Anonymous")
   const totals = new Map<string, number>();
   for (const row of data ?? []) {
-    if (!row.donor_name) continue;
-    totals.set(row.donor_name, (totals.get(row.donor_name) ?? 0) + Number(row.amount));
+    const name = row.donor_name || 'Anonymous';
+    totals.set(name, (totals.get(name) ?? 0) + Number(row.amount));
   }
 
   return Array.from(totals.entries())
