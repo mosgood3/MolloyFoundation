@@ -48,16 +48,18 @@ export async function POST(request: Request) {
           players = JSON.parse(meta.players as string);
         } catch {
           console.error('Failed to parse players metadata:', meta.players);
-          return NextResponse.json({ error: 'Invalid players metadata' }, { status: 400 });
+          return NextResponse.json({ received: true }, { status: 200 });
         }
 
         if (!Array.isArray(players) || players.length !== 3) {
-          return NextResponse.json({ error: 'Expected exactly 3 players' }, { status: 400 });
+          console.error('Invalid players array in metadata:', players);
+          return NextResponse.json({ received: true }, { status: 200 });
         }
 
         for (let i = 0; i < 3; i++) {
           if (!players[i]?.name || !players[i]?.size) {
-            return NextResponse.json({ error: `Player ${i + 1} is incomplete` }, { status: 400 });
+            console.error(`Player ${i + 1} is incomplete in metadata`);
+            return NextResponse.json({ received: true }, { status: 200 });
           }
         }
 
@@ -116,12 +118,14 @@ export async function POST(request: Request) {
             });
           }
 
-          const { data: waivers } = await supabaseAdmin
+          const { data: waivers, error: waiverErr } = await supabaseAdmin
             .from('waivers_2026')
             .insert(allPlayers)
             .select('token, player_name, player_email');
 
-          if (waivers) {
+          if (waiverErr) {
+            console.error('Waiver insert failed:', waiverErr.message);
+          } else if (waivers) {
             // Send each player their own waiver email
             for (const w of waivers) {
               if (w.player_email) {

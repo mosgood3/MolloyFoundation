@@ -8,7 +8,7 @@ const PAGE_SIZE = 20;
 
 // Strip characters that have special meaning in PostgREST filter syntax
 function sanitizeSearch(input: string): string {
-  return input.replace(/[,.()"\\%_*]/g, "").trim();
+  return input.replace(/[,.()"'\\%_*]/g, "").trim();
 }
 
 async function getAuthUser() {

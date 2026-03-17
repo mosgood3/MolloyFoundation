@@ -35,7 +35,7 @@ export function TeamsTable({ teams }: { teams: Team[] }) {
           <tbody>
             {teams.map((team, i) => (
               <tr
-                key={team.team_name}
+                key={`${team.team_name}-${i}`}
                 className={`border-b border-slate-100 last:border-b-0 transition-colors hover:bg-amber-50/50 ${
                   i % 2 === 0 ? "bg-white" : "bg-slate-50/50"
                 }`}
