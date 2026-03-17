@@ -41,7 +41,7 @@ export default function AdminLoginForm() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="max-w-sm mx-auto">
+      <div className="max-w-md mx-auto">
         <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-md p-8 md:p-10">
           {/* Lock icon */}
           <div className="flex justify-center mb-6">
