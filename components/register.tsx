@@ -117,12 +117,14 @@ export default function RegisterTeamForm() {
       return true;
     }
     if (step === 3) {
-      if (
-        !email.trim() ||
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-      ) {
-        setError("Valid email is required");
-        return false;
+      if (mode === "singles") {
+        if (
+          !email.trim() ||
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ) {
+          setError("Valid email is required");
+          return false;
+        }
       }
       if (!/^[0-9]{10}$/.test(phone)) {
         setError("Phone must be 10 digits");
@@ -171,7 +173,7 @@ export default function RegisterTeamForm() {
         ],
         player4: p4,
         division,
-        team_email: email.trim(),
+        team_email: players[0].email.trim(),
         team_phone: phone.trim(),
       };
     } else {
@@ -673,7 +675,7 @@ export default function RegisterTeamForm() {
                   Details
                 </h2>
                 <p className="text-slate-500 text-sm mt-1">
-                  Division preference and contact info
+                  {mode === "team" ? "Division preference and phone number" : "Division preference and contact info"}
                 </p>
               </div>
 
@@ -699,19 +701,21 @@ export default function RegisterTeamForm() {
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="reg-email" className="block text-sm font-bold text-slate-800 mb-1.5">
-                  Email
-                </label>
-                <input
-                  id="reg-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className={inputClass}
-                />
-              </div>
+              {mode === "singles" && (
+                <div>
+                  <label htmlFor="reg-email" className="block text-sm font-bold text-slate-800 mb-1.5">
+                    Email
+                  </label>
+                  <input
+                    id="reg-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className={inputClass}
+                  />
+                </div>
+              )}
 
               <div>
                 <label htmlFor="reg-phone" className="block text-sm font-bold text-slate-800 mb-1.5">
@@ -815,7 +819,7 @@ export default function RegisterTeamForm() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Email</span>
-                  <span className="text-slate-800">{email}</span>
+                  <span className="text-slate-800">{mode === "team" ? players[0].email : email}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Phone</span>
