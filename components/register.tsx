@@ -53,7 +53,8 @@ export default function RegisterTeamForm() {
 
   const totalSteps = 4;
   const hasPlayer4 = player4 !== null && player4.name.trim().length > 0;
-  const teamPrice = hasPlayer4 ? 160 : 120;
+  // TODO: revert to hasPlayer4 ? 160 : 120
+  const teamPrice = hasPlayer4 ? 2 : 1;
   const price = mode === "team" ? teamPrice : 40;
 
   function updatePlayer(idx: number, field: keyof Player, value: string) {

@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
     }
 
     const { team_name, players, player4, division, team_email, team_phone } = data;
-    const unitAmount = player4 ? 16000 : 12000;
+    // TODO: revert to player4 ? 16000 : 12000
+    const unitAmount = player4 ? 200 : 100;
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
