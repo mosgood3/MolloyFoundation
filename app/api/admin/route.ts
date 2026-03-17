@@ -172,11 +172,12 @@ export async function GET(req: NextRequest) {
   }
 
   if (tab === "stats") {
-    const [teamsRes, singlesRes, donationsRes, waiversRes, volunteersRes] = await Promise.all([
+    const [teamsRes, singlesRes, donationsRes, waiversTotalRes, waiversSignedRes, volunteersRes] = await Promise.all([
       supabaseAdmin.from("teams_2026").select("id", { count: "exact", head: true }),
       supabaseAdmin.from("singles_2026").select("id", { count: "exact", head: true }),
       supabaseAdmin.from("donations_2026").select("amount"),
-      supabaseAdmin.from("waivers_2026").select("signed"),
+      supabaseAdmin.from("waivers_2026").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("waivers_2026").select("id", { count: "exact", head: true }).eq("signed", true),
       supabaseAdmin.from("volunteers_2026").select("id", { count: "exact", head: true }),
     ]);
 
@@ -185,17 +186,12 @@ export async function GET(req: NextRequest) {
       0
     );
 
-    const waiversSigned = (waiversRes.data ?? []).filter(
-      (w) => w.signed
-    ).length;
-    const waiversTotal = waiversRes.data?.length ?? 0;
-
     return Response.json({
       teams: teamsRes.count ?? 0,
       singles: singlesRes.count ?? 0,
       totalDonations,
-      waiversSigned,
-      waiversTotal,
+      waiversSigned: waiversSignedRes.count ?? 0,
+      waiversTotal: waiversTotalRes.count ?? 0,
       volunteers: volunteersRes.count ?? 0,
     });
   }

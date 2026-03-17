@@ -87,8 +87,18 @@ export async function POST(request: Request) {
           player4email: player4?.email ?? null,
         };
 
-        const { error: teamErr } = await supabaseAdmin.from('teams_2026').insert(teamRow);
-        if (teamErr) throw teamErr;
+        const { error: teamErr } = await supabaseAdmin.from('teams_2026').insert({
+          ...teamRow,
+          stripe_session_id: session.id,
+        });
+        if (teamErr) {
+          // If duplicate session_id, skip silently (idempotency)
+          if (teamErr.code === '23505') {
+            console.log('Duplicate webhook for team, skipping:', session.id);
+            return NextResponse.json({ received: true }, { status: 200 });
+          }
+          throw teamErr;
+        }
         console.log('Team registered:', teamRow.team_name);
 
         const { error: regErr } = await supabaseAdmin.from('donations_2026').insert({
@@ -96,6 +106,7 @@ export async function POST(request: Request) {
           donor_name: meta.team_name,
           donor_email: meta.team_email,
           source: 'registration',
+          stripe_session_id: session.id,
         });
         if (regErr) {
           console.error('Donation insert failed for team:', teamRow.team_name, regErr.message);
@@ -160,8 +171,16 @@ export async function POST(request: Request) {
           donor_name: meta.donor_name || null,
           donor_email: customerEmail,
           source: 'donation',
+          stripe_session_id: session.id,
         });
-        if (donErr) throw donErr;
+        if (donErr) {
+          // If duplicate session_id, skip silently (idempotency)
+          if (donErr.code === '23505') {
+            console.log('Duplicate webhook for donation, skipping:', session.id);
+            return NextResponse.json({ received: true }, { status: 200 });
+          }
+          throw donErr;
+        }
         console.log('Donation recorded:', amount, meta.donor_name || 'anonymous');
 
         // Send thank-you email
