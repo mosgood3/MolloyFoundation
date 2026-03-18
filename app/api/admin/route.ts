@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
     let query = supabaseAdmin
       .from("waivers_2026")
       .select(
-        "id, player_name, player_email, team_name, registration_type, signed, signed_name, guardian_name, signed_at, created_at",
+        "id, player_name, player_email, team_name, registration_type, signed, signed_name, guardian_name, signed_at, pdf_path, created_at",
         { count: "exact" }
       );
 

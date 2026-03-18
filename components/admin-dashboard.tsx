@@ -586,6 +586,7 @@ function WaiversTable({ rows }: { rows: Record<string, unknown>[] }) {
             <th className={th}>Status</th>
             <th className={th}>Guardian</th>
             <th className={th}>Signed At</th>
+            <th className={th}>PDF</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-50">
@@ -604,6 +605,20 @@ function WaiversTable({ rows }: { rows: Record<string, unknown>[] }) {
               </td>
               <td className={td}>{String(r.guardian_name ?? "—")}</td>
               <td className={td}>{r.signed_at ? formatDate(r.signed_at as string) : "—"}</td>
+              <td className={td}>
+                {r.pdf_path ? (
+                  <a
+                    href={`/api/admin/waiver-pdf?path=${encodeURIComponent(String(r.pdf_path))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-amber-600 hover:text-amber-700 font-medium text-xs"
+                  >
+                    Download
+                  </a>
+                ) : (
+                  <span className="text-slate-300">—</span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -624,6 +639,16 @@ function WaiversTable({ rows }: { rows: Record<string, unknown>[] }) {
             <CardField label="Type">{String(r.registration_type ?? "")}</CardField>
             {r.guardian_name ? <CardField label="Guardian">{String(r.guardian_name)}</CardField> : null}
             {r.signed_at ? <CardField label="Signed">{formatDate(r.signed_at as string)}</CardField> : null}
+            {r.pdf_path ? (
+              <a
+                href={`/api/admin/waiver-pdf?path=${encodeURIComponent(String(r.pdf_path))}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-amber-600 hover:text-amber-700 font-medium text-xs mt-1"
+              >
+                Download PDF
+              </a>
+            ) : null}
           </div>
         ))}
       </div>
