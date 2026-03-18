@@ -36,6 +36,7 @@ import Header from "@/components/header";
 import HeroSection from "@/components/herosection";
 import About from "@/components/about";
 import Proceeds from "@/components/proceeds";
+import TournamentHighlights from "@/components/tournament-highlights";
 import Footer from "@/components/footer";
 
 export default function Page() {
@@ -46,6 +47,7 @@ export default function Page() {
         <HeroSection />
         <About />
         <Proceeds />
+        <TournamentHighlights />
       </main>
       <Footer />
     </>

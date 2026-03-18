@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 const StripeCheckout = dynamic(() => import("./stripe-checkout"), {
@@ -21,8 +21,10 @@ export default function DonateWidget() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const selected = typeof amount === "number" ? amount : 0;
+  const isCustom = selected > 0 && !PRESETS.includes(selected as (typeof PRESETS)[number]);
 
   async function handleDonate() {
     const value = typeof amount === "number" ? amount : 0;
@@ -102,6 +104,7 @@ export default function DonateWidget() {
                 $
               </span>
               <input
+                ref={inputRef}
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -116,7 +119,7 @@ export default function DonateWidget() {
               />
             </div>
 
-            <div className="grid grid-cols-4 gap-2 mb-5">
+            <div className="grid grid-cols-5 gap-2 mb-5">
               {PRESETS.map((p) => (
                 <button
                   key={p}
@@ -133,6 +136,20 @@ export default function DonateWidget() {
                   ${p}
                 </button>
               ))}
+              <button
+                onClick={() => {
+                  setAmount("");
+                  setError("");
+                  inputRef.current?.focus();
+                }}
+                className={`py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                  isCustom || amount === ""
+                    ? "bg-amber-500 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
+                }`}
+              >
+                Other
+              </button>
             </div>
 
             {/* Donor name */}

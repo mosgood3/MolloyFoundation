@@ -9,16 +9,6 @@ const memorialPhotos = [
   { src: "/molloy6.png", alt: "Family memories" },
 ];
 
-// Ordered to balance tall/wide images across columns
-const tournamentPhotos = [
-  { src: "/IMG_7242.JPG", alt: "Tournament action" },   // tall
-  { src: "/IMG_7257.JPG", alt: "Game time" },            // wide
-  { src: "/IMG_7303.JPG", alt: "Tournament day" },       // tall
-  { src: "/IMG_7245.JPG", alt: "On the court" },         // square-ish
-  { src: "/IMG_7281.JPG", alt: "Competition" },           // wide
-  { src: "/IMG_7306.JPG", alt: "Community" },             // square-ish
-];
-
 function PhotoGrid({
   photos,
 }: {
@@ -138,58 +128,9 @@ export default function About() {
             ))}
           </div>
 
-          {/* CTA + Details */}
-          <div className="mt-14 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="bg-amber-500 px-8 py-6 text-center">
-              <p className="text-white font-bold text-lg">
-                Support Molloy Madness — register a team, donate, or stop by on
-                tournament day to grab raffle tickets!
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-              {[
-                { label: "Date", value: "May 16, 2026" },
-                { label: "Time", value: "11:00 AM" },
-                {
-                  label: "Location",
-                  value: "875 Day Hill Rd, Windsor, CT 06095",
-                },
-                { label: "Teams", value: "Open to all" },
-              ].map((item) => (
-                <div key={item.label} className="px-6 py-5 text-center">
-                  <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">
-                    {item.label}
-                  </p>
-                  <p className="text-slate-800 font-medium text-sm">
-                    {item.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* ── Tournament Highlights ── */}
-      <div className="relative border-t border-slate-100 py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-amber-600 font-semibold uppercase tracking-widest text-sm mb-3">
-              Past Tournaments
-            </p>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-800 mb-4">
-              Tournament Highlights
-            </h2>
-            <p className="text-gray-500 text-lg max-w-lg mx-auto">
-              Scenes from the court — where community and competition come
-              together.
-            </p>
-          </div>
-
-          <PhotoGrid photos={tournamentPhotos} />
-        </div>
-      </div>
     </section>
   );
 }
