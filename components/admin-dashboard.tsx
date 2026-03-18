@@ -214,7 +214,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 bg-slate-100 rounded-xl p-1 w-fit">
+        <div className="flex flex-wrap gap-1 mb-6 bg-slate-100 rounded-xl p-1">
           {tabs.map((t) => (
             <button
               key={t.key}
