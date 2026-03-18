@@ -100,7 +100,7 @@ export default function AdminDashboard() {
     teams: ["team_name", "division", "team_email", "team_phone", "player1", "player1shirt", "player1email", "player2", "player2shirt", "player2email", "player3", "player3shirt", "player3email", "player4", "player4shirt", "player4email", "created_at"],
     singles: ["player_name", "player_shirt", "division", "email", "phone", "created_at"],
     donations: ["amount", "donor_name", "donor_email", "source", "created_at"],
-    waivers: ["player_name", "player_email", "team_name", "registration_type", "signed", "signed_name", "signed_at", "created_at"],
+    waivers: ["player_name", "player_email", "team_name", "registration_type", "signed", "signed_name", "guardian_name", "signed_at", "created_at"],
     volunteers: ["name", "email", "phone", "interests", "created_at"],
   };
 
@@ -584,6 +584,7 @@ function WaiversTable({ rows }: { rows: Record<string, unknown>[] }) {
             <th className={th}>Team</th>
             <th className={th}>Type</th>
             <th className={th}>Status</th>
+            <th className={th}>Guardian</th>
             <th className={th}>Signed At</th>
           </tr>
         </thead>
@@ -601,6 +602,7 @@ function WaiversTable({ rows }: { rows: Record<string, unknown>[] }) {
                   <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-600">Pending</span>
                 )}
               </td>
+              <td className={td}>{String(r.guardian_name ?? "—")}</td>
               <td className={td}>{r.signed_at ? formatDate(r.signed_at as string) : "—"}</td>
             </tr>
           ))}
@@ -620,6 +622,7 @@ function WaiversTable({ rows }: { rows: Record<string, unknown>[] }) {
             <CardField label="Email">{String(r.player_email ?? "")}</CardField>
             <CardField label="Team">{String(r.team_name ?? "—")}</CardField>
             <CardField label="Type">{String(r.registration_type ?? "")}</CardField>
+            {r.guardian_name ? <CardField label="Guardian">{String(r.guardian_name)}</CardField> : null}
             {r.signed_at ? <CardField label="Signed">{formatDate(r.signed_at as string)}</CardField> : null}
           </div>
         ))}

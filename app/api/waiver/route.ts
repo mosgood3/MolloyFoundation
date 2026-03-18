@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
 const signSchema = z.object({
   token: z.string().uuid(),
   signed_name: z.string().min(1).max(200),
+  guardian_name: z.string().max(200).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { token, signed_name } = parsed.data;
+  const { token, signed_name, guardian_name } = parsed.data;
 
   const { data: existing } = await supabaseAdmin
     .from("waivers_2026")
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
       signed: true,
       signed_name: signed_name.trim(),
       signed_at: new Date().toISOString(),
+      ...(guardian_name && { guardian_name: guardian_name.trim() }),
     })
     .eq("token", token);
 

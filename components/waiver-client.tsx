@@ -42,6 +42,8 @@ export default function WaiverClient() {
   const [notFound, setNotFound] = useState(false);
 
   const [signedName, setSignedName] = useState("");
+  const [isMinor, setIsMinor] = useState(false);
+  const [guardianName, setGuardianName] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -71,6 +73,10 @@ export default function WaiverClient() {
       setError("Please type your full name");
       return;
     }
+    if (isMinor && !guardianName.trim()) {
+      setError("Please enter your parent or guardian's full name");
+      return;
+    }
     if (!agreed) {
       setError("You must agree to the waiver");
       return;
@@ -83,7 +89,11 @@ export default function WaiverClient() {
       const res = await fetch("/api/waiver", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, signed_name: signedName.trim() }),
+        body: JSON.stringify({
+          token,
+          signed_name: signedName.trim(),
+          ...(isMinor && { guardian_name: guardianName.trim() }),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -199,12 +209,45 @@ export default function WaiverClient() {
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
+            checked={isMinor}
+            onChange={(e) => { setIsMinor(e.target.checked); setError(""); }}
+            className="mt-1 w-5 h-5 rounded border-slate-300 text-amber-500 focus:ring-amber-500"
+          />
+          <span className="text-sm text-gray-600">
+            I am under 18 years of age
+          </span>
+        </label>
+
+        {isMinor && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              Parent / Guardian full name
+            </label>
+            <input
+              type="text"
+              value={guardianName}
+              onChange={(e) => { setGuardianName(e.target.value); setError(""); }}
+              placeholder="Parent or guardian's full name"
+              className="w-full py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+              maxLength={200}
+            />
+            <p className="mt-1.5 text-xs text-gray-400">
+              By entering their name, your parent/guardian confirms they have reviewed this waiver and consent to your participation.
+            </p>
+          </div>
+        )}
+
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
             checked={agreed}
             onChange={(e) => { setAgreed(e.target.checked); setError(""); }}
             className="mt-1 w-5 h-5 rounded border-slate-300 text-amber-500 focus:ring-amber-500"
           />
           <span className="text-sm text-gray-600">
-            I have read the waiver above and agree to its terms. I confirm that I am at least 14 years of age, or that my parent/legal guardian has given consent for my participation.
+            {isMinor
+              ? "I have read the waiver above and agree to its terms. My parent or legal guardian has reviewed this waiver and consents to my participation."
+              : "I have read the waiver above and agree to its terms. I confirm that I am at least 18 years of age."}
           </span>
         </label>
 
