@@ -13,6 +13,10 @@ const tournamentPhotos = [
   { src: "/IMG_3813.JPG", alt: "Celebrating together" },
   { src: "/IMG_7306.JPG", alt: "Community" },
   { src: "/IMG_3811.JPG", alt: "Tournament moments" },
+  { src: "/IMG_5150.jpg", alt: "Tournament highlights" },
+  { src: "/IMG_5151.jpg", alt: "Game day" },
+  { src: "/IMG_5152.jpg", alt: "Court moments" },
+  { src: "/IMG_5153.jpg", alt: "Players in action" },
 ];
 
 export default function TournamentHighlights() {
