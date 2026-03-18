@@ -15,18 +15,18 @@ function PhotoGrid({
   photos: { src: string; alt: string }[];
 }) {
   return (
-    <div className="columns-2 md:columns-3 gap-4 space-y-4">
+    <div className="max-w-4xl mx-auto columns-3 md:columns-3 gap-3 space-y-3">
       {photos.map((img, idx) => (
         <div
           key={idx}
-          className="group relative break-inside-avoid rounded-2xl overflow-hidden border border-slate-200 hover:border-amber-300 hover:shadow-xl transition-all duration-500"
+          className="group relative break-inside-avoid rounded-xl overflow-hidden border border-slate-200 hover:border-amber-300 hover:shadow-xl transition-all duration-500"
         >
           <Image
             src={img.src}
             alt={img.alt}
-            width={600}
-            height={800}
-            className="w-full h-auto object-contain transition-transform duration-700 group-hover:scale-105"
+            width={400}
+            height={500}
+            className="w-full h-auto max-h-[350px] object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
             <p className="text-white font-medium text-sm tracking-wide">
