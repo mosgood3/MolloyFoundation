@@ -1,7 +1,9 @@
 import Image from "next/image";
 
 const tournamentPhotos = [
-  { src: "/IMG_7242.JPG", alt: "Tournament action" },
+  { src: "/IMG_5143.JPG", alt: "Tournament action" },
+  { src: "/IMG_5126.JPG", alt: "Tournament action" },
+  { src: "/IMG_5137.JPG", alt: "Tournament action" },
   { src: "/IMG_7257.JPG", alt: "Game time" },
   { src: "/IMG_3713.JPG", alt: "On the court" },
   { src: "/IMG_7303.JPG", alt: "Tournament day" },

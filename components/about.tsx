@@ -1,12 +1,14 @@
 import Image from "next/image";
 
 const memorialPhotos = [
+  { src: "/molloy5.png", alt: "Matt's smile" },
   { src: "/molloy1.png", alt: "Matt with friends" },
   { src: "/molloy2.png", alt: "On the field" },
   { src: "/molloy3.png", alt: "Game day" },
   { src: "/molloy4.png", alt: "Celebrating together" },
-  { src: "/molloy5.png", alt: "Matt's smile" },
   { src: "/molloy6.png", alt: "Family memories" },
+  { src: "/IMG_1229.JPG", alt: "Remembering Matt" },
+  { src: "/IMG_1512.JPG", alt: "Remembering Matt" },
 ];
 
 function PhotoGrid({
@@ -26,7 +28,7 @@ function PhotoGrid({
             alt={img.alt}
             width={400}
             height={500}
-            className="w-full h-auto max-h-[350px] object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-auto max-h-[420px] object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-5">
             <p className="text-white font-medium text-sm tracking-wide">
