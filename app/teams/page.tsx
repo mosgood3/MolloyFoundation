@@ -1,7 +1,9 @@
+import { notFound } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import TeamsClient from "@/components/teamsclient";
 import { getTeams, getFreeAgents } from "@/actions/teams";
+import { TEAMS_PAGE_ENABLED } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,8 @@ export const metadata = {
 };
 
 export default async function TeamsPage() {
+  if (!TEAMS_PAGE_ENABLED) notFound();
+
   const [{ teams: initialTeams, total: initialTotal }, freeAgents] =
     await Promise.all([getTeams(1), getFreeAgents()]);
 

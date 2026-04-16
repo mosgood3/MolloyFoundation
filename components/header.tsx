@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { FaBasketballBall } from "react-icons/fa";
+import { TEAMS_PAGE_ENABLED } from "@/lib/constants";
 
 const links = [
   { href: "/#about", label: "About" },
-  { href: "/teams", label: "Teams" },
+  ...(TEAMS_PAGE_ENABLED ? [{ href: "/teams", label: "Teams" }] : []),
   { href: "/volunteer", label: "Volunteer" },
 ];
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CONTACT_EMAIL } from "@/lib/constants";
+import { CONTACT_EMAIL, TEAMS_PAGE_ENABLED } from "@/lib/constants";
 import { FaBasketballBall } from "react-icons/fa";
 
 export default function Footer() {
@@ -30,7 +30,7 @@ export default function Footer() {
               {[
                 { label: "Donate", href: "/#proceeds" },
                 { label: "Register", href: "/register" },
-                { label: "Teams", href: "/teams" },
+                ...(TEAMS_PAGE_ENABLED ? [{ label: "Teams", href: "/teams" }] : []),
                 { label: "Volunteer", href: "/volunteer" },
                 { label: "About Matt", href: "/#about" },
                 { label: "Waiver & Disclaimer", href: "/disclaimer" },
