@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
     }
 
     const { team_name, players, player4, division, team_email, team_phone } = data;
-    const unitAmount = player4 ? 16000 : 12000;
+    // TEST PRICING — $1/player. Restore to `player4 ? 16000 : 12000` before launch.
+    const unitAmount = player4 ? 400 : 300;
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
