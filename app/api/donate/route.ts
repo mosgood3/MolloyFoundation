@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         type: "donation",
         ...(donor_name && { donor_name }),
       },
-      return_url: `${req.nextUrl.origin}/donate/success?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${req.nextUrl.origin}/donate/success?session_id={CHECKOUT_SESSION_ID}&amount=${amount}`,
     });
 
     return Response.json({ clientSecret: session.client_secret });

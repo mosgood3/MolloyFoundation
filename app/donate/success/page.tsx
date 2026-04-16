@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import MetaEvent from "@/components/meta-event";
 import { CONTACT_EMAIL } from "@/lib/constants";
 
 export const metadata = {
@@ -10,6 +12,9 @@ export const metadata = {
 export default function DonateSuccessPage() {
   return (
     <>
+      <Suspense>
+        <MetaEvent eventName="Donate" />
+      </Suspense>
       <Header />
       <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 to-white p-6">
         <div className="w-full max-w-md bg-white bg-opacity-80 backdrop-blur-sm rounded-3xl shadow-xl p-10 text-center space-y-6 animate-[fadeIn_0.5s_ease-out]">

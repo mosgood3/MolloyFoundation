@@ -50,10 +50,10 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://js.stripe.com`,
+              `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://js.stripe.com https://connect.facebook.net`,
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data:",
-              "connect-src 'self' https://*.supabase.co https://api.stripe.com https://checkout.stripe.com",
+              "img-src 'self' data: https://www.facebook.com",
+              "connect-src 'self' https://*.supabase.co https://api.stripe.com https://checkout.stripe.com https://www.facebook.com",
               "frame-src https://js.stripe.com https://checkout.stripe.com",
               "font-src 'self'",
               "object-src 'none'",

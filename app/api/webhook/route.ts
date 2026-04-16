@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabaseadmin';
 import { sendTeamWaiverEmail, sendSinglesWaiverEmail, sendDonationThankYouEmail } from '@/lib/email';
+import { sendMetaEvent } from '@/lib/meta-capi';
 
 // NOTE: Idempotency for webhook events should be handled at the database level
 // using unique constraints (e.g., a unique stripe_session_id column on donations_2026).
@@ -101,6 +102,15 @@ export async function POST(request: Request) {
         }
         console.log('Team registered:', teamRow.team_name);
 
+        // Meta CAPI — Register event
+        sendMetaEvent({
+          eventName: 'Register',
+          eventId: session.id,
+          sourceUrl: `https://www.matthewcmolloyfoundation.org/success?session_id=${session.id}`,
+          email: meta.team_email,
+          value: amount,
+        }).catch((err) => console.error('Meta CAPI (Register) failed:', err));
+
         const { error: regErr } = await supabaseAdmin.from('donations_2026').insert({
           amount,
           donor_name: meta.team_name,
@@ -182,6 +192,15 @@ export async function POST(request: Request) {
           throw donErr;
         }
         console.log('Donation recorded:', amount, meta.donor_name || 'anonymous');
+
+        // Meta CAPI — Donate event
+        sendMetaEvent({
+          eventName: 'Donate',
+          eventId: session.id,
+          sourceUrl: `https://www.matthewcmolloyfoundation.org/donate/success?session_id=${session.id}`,
+          email: customerEmail,
+          value: amount,
+        }).catch((err) => console.error('Meta CAPI (Donate) failed:', err));
 
         // Send thank-you email
         if (customerEmail) {

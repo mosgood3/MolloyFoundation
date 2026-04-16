@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import MetaPixel from "@/components/meta-pixel";
 
 // Import Inter font and assign it to a CSS variable (optional)
 const inter = Inter({
@@ -22,7 +23,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="antialiased" suppressHydrationWarning>{children}</body>
+      <body className="antialiased" suppressHydrationWarning>
+        <MetaPixel />
+        {children}
+      </body>
     </html>
   );
 }

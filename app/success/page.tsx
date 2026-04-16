@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import MetaEvent from "@/components/meta-event";
 import { CONTACT_EMAIL } from "@/lib/constants";
 
 export const metadata = {
@@ -10,6 +12,9 @@ export const metadata = {
 export default function SuccessPage() {
   return (
     <>
+      <Suspense>
+        <MetaEvent eventName="Register" />
+      </Suspense>
       <Header />
       <main className="relative min-h-screen bg-slate-50 flex items-center justify-center px-4 py-24">
         <div className="absolute top-20 right-10 w-[400px] h-[400px] bg-amber-200/30 rounded-full blur-[120px]" />

@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         players: JSON.stringify(players),
         ...(player4 && { player4: JSON.stringify(player4) }),
       },
-      return_url: `${req.nextUrl.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${req.nextUrl.origin}/success?session_id={CHECKOUT_SESSION_ID}&amount=${unitAmount / 100}`,
       customer_email: team_email,
     });
 
