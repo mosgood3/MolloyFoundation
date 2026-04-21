@@ -35,7 +35,8 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-200 ${
+      style={{ top: "var(--banner-height, 0px)" }}
+      className={`fixed inset-x-0 z-50 transition-colors duration-200 ${
         open || solid
           ? "bg-white/95 backdrop-blur-md shadow-sm"
           : "bg-transparent"
