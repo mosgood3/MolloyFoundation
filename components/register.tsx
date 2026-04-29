@@ -45,6 +45,7 @@ export default function RegisterTeamForm() {
   const [division, setDivision] = useState<Division>("Competitive");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [promoCode, setPromoCode] = useState("");
 
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -53,7 +54,9 @@ export default function RegisterTeamForm() {
 
   const totalSteps = 4;
   const hasPlayer4 = player4 !== null && player4.name.trim().length > 0;
-  const teamPrice = hasPlayer4 ? 160 : 120;
+  const baseTeamPrice = hasPlayer4 ? 160 : 120;
+  const promoApplied = promoCode.trim().toLowerCase() === "madnessunder18";
+  const teamPrice = promoApplied ? 100 : baseTeamPrice;
   const price = mode === "team" ? teamPrice : 40;
 
   function updatePlayer(idx: number, field: keyof Player, value: string) {
@@ -174,6 +177,7 @@ export default function RegisterTeamForm() {
         division,
         team_email: players[0].email.trim(),
         team_phone: phone.trim(),
+        ...(promoCode.trim() && { promo_code: promoCode.trim() }),
       };
     } else {
       body = {
@@ -825,10 +829,36 @@ export default function RegisterTeamForm() {
                   <span className="text-slate-800">+1 {phone}</span>
                 </div>
                 {mode === "team" ? (
-                  <div className="border-t border-slate-200 pt-3 flex justify-between font-bold">
-                    <span className="text-slate-700">Total</span>
-                    <span className="text-amber-600 text-lg">${price}</span>
-                  </div>
+                  <>
+                    <div className="border-t border-slate-200 pt-3">
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Promo code
+                      </label>
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        placeholder="Optional"
+                        className="w-full py-2.5 px-3 bg-white border-2 border-slate-300 rounded-lg text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition placeholder:text-slate-400"
+                      />
+                      {promoApplied && (
+                        <p className="text-xs text-green-600 font-semibold mt-1.5">
+                          Promo applied — flat ${teamPrice}
+                        </p>
+                      )}
+                    </div>
+                    <div className="border-t border-slate-200 pt-3 flex justify-between font-bold">
+                      <span className="text-slate-700">Total</span>
+                      <span className="text-amber-600 text-lg">
+                        {promoApplied && (
+                          <span className="text-slate-400 line-through font-normal text-base mr-2">
+                            ${baseTeamPrice}
+                          </span>
+                        )}
+                        ${price}
+                      </span>
+                    </div>
+                  </>
                 ) : (
                   <div className="border-t border-slate-200 pt-3">
                     <p className="text-sm text-slate-600">

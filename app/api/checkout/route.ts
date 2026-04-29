@@ -38,8 +38,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { team_name, players, player4, division, team_email, team_phone } = data;
-    const unitAmount = player4 ? 16000 : 12000;
+    const { team_name, players, player4, division, team_email, team_phone, promo_code } = data;
+    const baseAmount = player4 ? 16000 : 12000;
+    const normalizedCode = promo_code?.trim().toLowerCase() ?? "";
+    const unitAmount = normalizedCode === "madnessunder18" ? 10000 : baseAmount;
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({

@@ -25,6 +25,7 @@ export const teamRegistrationSchema = z.object({
   team_phone: z.string().regex(/^[0-9]{10}$/, {
     message: "Phone must be 10 digits (no spaces or dashes)",
   }),
+  promo_code: z.string().max(64).optional(),
 });
 
 // Singles registration
