@@ -574,6 +574,23 @@ function DonationsTable({ rows }: { rows: Record<string, unknown>[] }) {
 }
 
 function WaiversTable({ rows }: { rows: Record<string, unknown>[] }) {
+  const [resendStatus, setResendStatus] = useState<Record<string, "sending" | "sent" | "error">>({});
+
+  async function resend(id: string) {
+    setResendStatus((s) => ({ ...s, [id]: "sending" }));
+    try {
+      const res = await fetch("/api/admin/resend-waiver", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) throw new Error();
+      setResendStatus((s) => ({ ...s, [id]: "sent" }));
+    } catch {
+      setResendStatus((s) => ({ ...s, [id]: "error" }));
+    }
+  }
+
   return (
     <>
       <table className="w-full hidden md:table">
@@ -590,69 +607,116 @@ function WaiversTable({ rows }: { rows: Record<string, unknown>[] }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-50">
-          {rows.map((r, i) => (
-            <tr key={i} className="hover:bg-slate-50/50 transition">
-              <td className={`${td} font-semibold`}>{String(r.player_name ?? "")}</td>
-              <td className={td}>{String(r.player_email ?? "")}</td>
-              <td className={td}>{String(r.team_name ?? "—")}</td>
-              <td className={td}>{String(r.registration_type ?? "")}</td>
-              <td className={td}>
+          {rows.map((r, i) => {
+            const id = String(r.id ?? "");
+            const status = resendStatus[id];
+            return (
+              <tr key={i} className="hover:bg-slate-50/50 transition">
+                <td className={`${td} font-semibold`}>{String(r.player_name ?? "")}</td>
+                <td className={td}>{String(r.player_email ?? "")}</td>
+                <td className={td}>{String(r.team_name ?? "—")}</td>
+                <td className={td}>{String(r.registration_type ?? "")}</td>
+                <td className={td}>
+                  {r.signed ? (
+                    <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Signed</span>
+                  ) : (
+                    <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-600">Pending</span>
+                  )}
+                </td>
+                <td className={td}>{String(r.guardian_name ?? "—")}</td>
+                <td className={td}>{r.signed_at ? formatDate(r.signed_at as string) : "—"}</td>
+                <td className={td}>
+                  {r.signed ? (
+                    r.pdf_path ? (
+                      <a
+                        href={`/api/admin/waiver-pdf?path=${encodeURIComponent(String(r.pdf_path))}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-amber-600 hover:text-amber-700 font-medium text-xs"
+                      >
+                        Download
+                      </a>
+                    ) : (
+                      <span className="text-slate-300">—</span>
+                    )
+                  ) : (
+                    <ResendButton status={status} onClick={() => resend(id)} disabled={!id || !r.player_email} />
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <div className="md:hidden divide-y divide-slate-100">
+        {rows.map((r, i) => {
+          const id = String(r.id ?? "");
+          const status = resendStatus[id];
+          return (
+            <div key={i} className="p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="font-bold text-slate-800">{String(r.player_name ?? "")}</p>
                 {r.signed ? (
                   <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Signed</span>
                 ) : (
                   <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-600">Pending</span>
                 )}
-              </td>
-              <td className={td}>{String(r.guardian_name ?? "—")}</td>
-              <td className={td}>{r.signed_at ? formatDate(r.signed_at as string) : "—"}</td>
-              <td className={td}>
-                {r.pdf_path ? (
-                  <a
-                    href={`/api/admin/waiver-pdf?path=${encodeURIComponent(String(r.pdf_path))}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-amber-600 hover:text-amber-700 font-medium text-xs"
-                  >
-                    Download
-                  </a>
-                ) : (
-                  <span className="text-slate-300">—</span>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="md:hidden divide-y divide-slate-100">
-        {rows.map((r, i) => (
-          <div key={i} className="p-4 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="font-bold text-slate-800">{String(r.player_name ?? "")}</p>
-              {r.signed ? (
-                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Signed</span>
-              ) : (
-                <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-600">Pending</span>
-              )}
+              </div>
+              <CardField label="Email">{String(r.player_email ?? "")}</CardField>
+              <CardField label="Team">{String(r.team_name ?? "—")}</CardField>
+              <CardField label="Type">{String(r.registration_type ?? "")}</CardField>
+              {r.guardian_name ? <CardField label="Guardian">{String(r.guardian_name)}</CardField> : null}
+              {r.signed_at ? <CardField label="Signed">{formatDate(r.signed_at as string)}</CardField> : null}
+              {r.signed && r.pdf_path ? (
+                <a
+                  href={`/api/admin/waiver-pdf?path=${encodeURIComponent(String(r.pdf_path))}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-amber-600 hover:text-amber-700 font-medium text-xs mt-1"
+                >
+                  Download PDF
+                </a>
+              ) : null}
+              {!r.signed ? (
+                <div className="pt-1">
+                  <ResendButton status={status} onClick={() => resend(id)} disabled={!id || !r.player_email} />
+                </div>
+              ) : null}
             </div>
-            <CardField label="Email">{String(r.player_email ?? "")}</CardField>
-            <CardField label="Team">{String(r.team_name ?? "—")}</CardField>
-            <CardField label="Type">{String(r.registration_type ?? "")}</CardField>
-            {r.guardian_name ? <CardField label="Guardian">{String(r.guardian_name)}</CardField> : null}
-            {r.signed_at ? <CardField label="Signed">{formatDate(r.signed_at as string)}</CardField> : null}
-            {r.pdf_path ? (
-              <a
-                href={`/api/admin/waiver-pdf?path=${encodeURIComponent(String(r.pdf_path))}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block text-amber-600 hover:text-amber-700 font-medium text-xs mt-1"
-              >
-                Download PDF
-              </a>
-            ) : null}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </>
+  );
+}
+
+function ResendButton({
+  status,
+  onClick,
+  disabled,
+}: {
+  status: "sending" | "sent" | "error" | undefined;
+  onClick: () => void;
+  disabled: boolean;
+}) {
+  if (status === "sent") {
+    return <span className="text-green-600 text-xs font-medium">Sent ✓</span>;
+  }
+  const label =
+    status === "sending" ? "Sending..." : status === "error" ? "Retry" : "Resend";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled || status === "sending"}
+      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${
+        status === "error"
+          ? "bg-red-50 text-red-700 hover:bg-red-100"
+          : "bg-amber-50 text-amber-700 hover:bg-amber-100"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

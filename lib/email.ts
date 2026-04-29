@@ -146,6 +146,26 @@ export async function sendSinglesWaiverEmail(
   });
 }
 
+export async function sendWaiverReminderEmail(
+  toEmail: string,
+  playerName: string,
+  token: string
+) {
+  const html = emailWrapper(`
+    ${heading(`Reminder for ${playerName}`)}
+    ${paragraph("This is a friendly reminder to sign your Molloy Madness tournament waiver. All players must have a signed waiver before game day.")}
+    ${button(`${BASE_URL}/waiver?token=${token}`, "Sign Your Waiver")}
+    ${signoff()}
+  `);
+
+  await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: toEmail,
+    subject: "Reminder: Sign your Molloy Madness waiver",
+    html,
+  });
+}
+
 export async function sendSinglesConfirmationEmail(
   toEmail: string,
   playerName: string,
