@@ -109,6 +109,10 @@ export async function POST(request: Request) {
           sourceUrl: `https://www.matthewcmolloyfoundation.org/success?session_id=${session.id}`,
           email: meta.team_email,
           value: amount,
+          fbp: meta.fbp ?? null,
+          fbc: meta.fbc ?? null,
+          ipAddress: meta.ip ?? null,
+          userAgent: meta.ua ?? null,
         }).catch((err) => console.error('Meta CAPI (Register) failed:', err));
 
         const { error: regErr } = await supabaseAdmin.from('donations_2026').insert({
@@ -200,6 +204,10 @@ export async function POST(request: Request) {
           sourceUrl: `https://www.matthewcmolloyfoundation.org/donate/success?session_id=${session.id}`,
           email: customerEmail,
           value: amount,
+          fbp: meta.fbp ?? null,
+          fbc: meta.fbc ?? null,
+          ipAddress: meta.ip ?? null,
+          userAgent: meta.ua ?? null,
         }).catch((err) => console.error('Meta CAPI (Donate) failed:', err));
 
         // Send thank-you email

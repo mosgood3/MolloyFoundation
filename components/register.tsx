@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { tshirtSizes, divisions } from "@/utils/validators";
 import type { RegistrationData } from "@/utils/validators";
+import { getMetaClientContext } from "@/lib/meta-tracking";
 
 const StripeCheckout = dynamic(() => import("./stripe-checkout"), {
   ssr: false,
@@ -55,8 +56,15 @@ export default function RegisterTeamForm() {
   const totalSteps = 4;
   const hasPlayer4 = player4 !== null && player4.name.trim().length > 0;
   const baseTeamPrice = hasPlayer4 ? 160 : 120;
-  const promoApplied = promoCode.trim().toLowerCase() === "madnessunder18";
-  const teamPrice = promoApplied ? 100 : baseTeamPrice;
+  const normalizedPromo = promoCode.trim().toLowerCase();
+  const promoTeamPrice =
+    normalizedPromo === "madnessunder18"
+      ? 100
+      : normalizedPromo === "madness2players"
+        ? 80
+        : null;
+  const promoApplied = promoTeamPrice !== null;
+  const teamPrice = promoTeamPrice ?? baseTeamPrice;
   const price = mode === "team" ? teamPrice : 40;
 
   function updatePlayer(idx: number, field: keyof Player, value: string) {
@@ -219,7 +227,7 @@ export default function RegisterTeamForm() {
         const res = await fetch("/api/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+          body: JSON.stringify({ ...body, ...getMetaClientContext() }),
         });
         const data = await res.json();
         if (!res.ok) {

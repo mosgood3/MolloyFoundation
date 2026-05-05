@@ -32,6 +32,11 @@ export async function POST(req: NextRequest) {
 
     const { amount, donor_name } = parsed.data;
 
+    const fbp = typeof body.fbp === "string" ? body.fbp.slice(0, 250) : null;
+    const fbc = typeof body.fbc === "string" ? body.fbc.slice(0, 250) : null;
+    const ua = typeof body.user_agent === "string" ? body.user_agent.slice(0, 500) : null;
+    const ip = getIP(req);
+
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
       ui_mode: "embedded",
@@ -51,6 +56,10 @@ export async function POST(req: NextRequest) {
       metadata: {
         type: "donation",
         ...(donor_name && { donor_name }),
+        ...(fbp && { fbp }),
+        ...(fbc && { fbc }),
+        ...(ua && { ua }),
+        ...(ip !== "unknown" && { ip }),
       },
       return_url: `${req.nextUrl.origin}/donate/success?session_id={CHECKOUT_SESSION_ID}&amount=${amount}`,
     });

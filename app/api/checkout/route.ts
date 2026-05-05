@@ -41,7 +41,17 @@ export async function POST(req: NextRequest) {
     const { team_name, players, player4, division, team_email, team_phone, promo_code } = data;
     const baseAmount = player4 ? 16000 : 12000;
     const normalizedCode = promo_code?.trim().toLowerCase() ?? "";
-    const unitAmount = normalizedCode === "madnessunder18" ? 10000 : baseAmount;
+    const unitAmount =
+      normalizedCode === "madnessunder18"
+        ? 10000
+        : normalizedCode === "madness2players"
+          ? 8000
+          : baseAmount;
+
+    const fbp = typeof body.fbp === "string" ? body.fbp.slice(0, 250) : null;
+    const fbc = typeof body.fbc === "string" ? body.fbc.slice(0, 250) : null;
+    const ua = typeof body.user_agent === "string" ? body.user_agent.slice(0, 500) : null;
+    const ip = getIP(req);
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
@@ -66,6 +76,10 @@ export async function POST(req: NextRequest) {
         team_phone,
         players: JSON.stringify(players),
         ...(player4 && { player4: JSON.stringify(player4) }),
+        ...(fbp && { fbp }),
+        ...(fbc && { fbc }),
+        ...(ua && { ua }),
+        ...(ip !== "unknown" && { ip }),
       },
       return_url: `${req.nextUrl.origin}/success?session_id={CHECKOUT_SESSION_ID}&amount=${unitAmount / 100}`,
       customer_email: team_email,

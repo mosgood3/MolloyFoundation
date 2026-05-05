@@ -16,6 +16,8 @@ export async function sendMetaEvent({
   value,
   ipAddress,
   userAgent,
+  fbp,
+  fbc,
 }: {
   eventName: string;
   eventId: string;
@@ -24,6 +26,8 @@ export async function sendMetaEvent({
   value?: number;
   ipAddress?: string | null;
   userAgent?: string | null;
+  fbp?: string | null;
+  fbc?: string | null;
 }) {
   if (!PIXEL_ID || !ACCESS_TOKEN) return;
 
@@ -31,6 +35,8 @@ export async function sendMetaEvent({
   if (email) userData.em = sha256(email);
   if (ipAddress) userData.client_ip_address = ipAddress;
   if (userAgent) userData.client_user_agent = userAgent;
+  if (fbp) userData.fbp = fbp;
+  if (fbc) userData.fbc = fbc;
 
   const eventData: Record<string, unknown> = {
     event_name: eventName,

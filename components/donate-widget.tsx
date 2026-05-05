@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { getMetaClientContext } from "@/lib/meta-tracking";
 
 const StripeCheckout = dynamic(() => import("./stripe-checkout"), {
   ssr: false,
@@ -47,6 +48,7 @@ export default function DonateWidget() {
         body: JSON.stringify({
           amount: value,
           ...(donorName.trim() && { donor_name: donorName.trim() }),
+          ...getMetaClientContext(),
         }),
       });
 
