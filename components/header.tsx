@@ -85,20 +85,10 @@ export default function Header() {
 
           <div className="w-px h-6 bg-slate-200 mx-2" />
 
-          <Link
-            href="/register"
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors border ${
-              solid
-                ? "border-amber-500 text-amber-600 hover:bg-amber-50"
-                : "border-white/60 text-white hover:bg-white/10"
-            }`}
-          >
-            Register
-          </Link>
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a
             href="/#proceeds"
-            className="ml-1 px-4 py-2 rounded-lg text-sm font-bold bg-amber-500 text-white hover:bg-amber-600 transition-colors shadow-sm"
+            className="px-4 py-2 rounded-lg text-sm font-bold bg-amber-500 text-white hover:bg-amber-600 transition-colors shadow-sm"
           >
             Donate
           </a>
@@ -153,13 +143,6 @@ export default function Header() {
           })}
           <div className="h-px bg-slate-100 my-2" />
           <div className="flex gap-2 pt-1">
-            <Link
-              href="/register"
-              onClick={() => setOpen(false)}
-              className="flex-1 text-center px-4 py-2.5 border border-amber-500 text-amber-600 rounded-lg font-bold text-sm hover:bg-amber-50 transition-colors"
-            >
-              Register
-            </Link>
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/#proceeds"
