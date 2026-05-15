@@ -70,11 +70,12 @@ export function resolveSource(
   return upstream.winner_id === upstream.team1_id ? upstream.team2_id : upstream.team1_id;
 }
 
-// Format court/hoop badge ("C1 H2") or null.
+// Format court/hoop badge. Shows "Court X · Hoop Y" if both set, "Court X" if only court.
 export function formatCourtHoop(
   court: number | null,
   hoop: number | null
 ): string | null {
-  if (court == null || hoop == null) return null;
+  if (court == null) return null;
+  if (hoop == null) return `Court ${court}`;
   return `Court ${court} · Hoop ${hoop}`;
 }
