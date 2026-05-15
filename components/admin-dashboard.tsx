@@ -3,13 +3,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
+import AdminBracketPanel from "./admin-bracket-panel";
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-type Tab = "teams" | "singles" | "donations" | "waivers" | "volunteers";
+type Tab = "bracket" | "teams" | "singles" | "donations" | "waivers" | "volunteers";
+type DataTab = Exclude<Tab, "bracket">;
 
 type Stats = {
   teams: number;
@@ -22,7 +24,7 @@ type Stats = {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("teams");
+  const [tab, setTab] = useState<Tab>("bracket");
   const [data, setData] = useState<Record<string, unknown>[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -33,6 +35,10 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
 
   const fetchData = useCallback(async () => {
+    if (tab === "bracket") {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -94,9 +100,9 @@ export default function AdminDashboard() {
 
   const [exporting, setExporting] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [exportTabs, setExportTabs] = useState<Tab[]>([]);
+  const [exportTabs, setExportTabs] = useState<DataTab[]>([]);
 
-  const columnMap: Record<Tab, string[]> = {
+  const columnMap: Record<DataTab, string[]> = {
     teams: ["team_name", "division", "team_email", "team_phone", "player1", "player1shirt", "player1email", "player2", "player2shirt", "player2email", "player3", "player3shirt", "player3email", "player4", "player4shirt", "player4email", "created_at"],
     singles: ["player_name", "player_shirt", "division", "email", "phone", "created_at"],
     donations: ["amount", "donor_name", "donor_email", "source", "created_at"],
@@ -104,13 +110,13 @@ export default function AdminDashboard() {
     volunteers: ["name", "email", "phone", "interests", "created_at"],
   };
 
-  function toggleExportTab(t: Tab) {
+  function toggleExportTab(t: DataTab) {
     setExportTabs((prev) =>
       prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
     );
   }
 
-  async function fetchAllForTab(t: Tab): Promise<Record<string, unknown>[]> {
+  async function fetchAllForTab(t: DataTab): Promise<Record<string, unknown>[]> {
     const allRows: Record<string, unknown>[] = [];
     let p = 1;
     let hasMore = true;
@@ -171,12 +177,18 @@ export default function AdminDashboard() {
   const totalPages = Math.ceil(total / pageSize);
 
   const tabs: { key: Tab; label: string }[] = [
+    { key: "bracket", label: "Bracket" },
     { key: "teams", label: "Teams" },
     { key: "singles", label: "Singles" },
     { key: "donations", label: "Donations" },
     { key: "waivers", label: "Waivers" },
     { key: "volunteers", label: "Volunteers" },
   ];
+
+  const exportableTabs = tabs.filter((t) => t.key !== "bracket") as {
+    key: DataTab;
+    label: string;
+  }[];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -230,7 +242,8 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Search + Export */}
+        {/* Search + Export (hidden on Bracket tab) */}
+        {tab !== "bracket" && (
         <div className="flex gap-2 mb-6 flex-wrap">
           <form onSubmit={handleSearch} className="flex gap-2 flex-1 min-w-0">
             <input
@@ -270,6 +283,7 @@ export default function AdminDashboard() {
             Export
           </button>
         </div>
+        )}
 
         {/* Export Modal */}
         {showExportModal && (
@@ -279,7 +293,7 @@ export default function AdminDashboard() {
               <p className="text-sm text-slate-500 mb-5">Select which reports to download as CSV.</p>
 
               <div className="space-y-2 mb-6">
-                {tabs.map((t) => {
+                {exportableTabs.map((t) => {
                   const checked = exportTabs.includes(t.key);
                   return (
                     <label
@@ -323,7 +337,11 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Table */}
+        {/* Bracket panel */}
+        {tab === "bracket" && <AdminBracketPanel />}
+
+        {/* Table (data tabs only) */}
+        {tab !== "bracket" && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           {loading ? (
             <div className="p-12 text-center text-slate-400">Loading...</div>
@@ -341,9 +359,10 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+        )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {tab !== "bracket" && totalPages > 1 && (
           <div className="flex items-center justify-between mt-6">
             <p className="text-sm text-slate-500">
               Showing {(page - 1) * pageSize + 1}–

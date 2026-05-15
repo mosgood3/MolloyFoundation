@@ -9,6 +9,7 @@ import { TEAMS_PAGE_ENABLED } from "@/lib/constants";
 const links = [
   { href: "/#about", label: "About" },
   ...(TEAMS_PAGE_ENABLED ? [{ href: "/teams", label: "Teams" }] : []),
+  { href: "/bracket", label: "Bracket" },
   { href: "/volunteer", label: "Volunteer" },
 ];
 
